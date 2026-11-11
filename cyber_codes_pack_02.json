@@ -1,0 +1,250 @@
+[
+  {
+    "id": 31,
+    "title": "Show local IP addresses",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Display addresses assigned to your own device.",
+    "code": "ip addr"
+  },
+  {
+    "id": 32,
+    "title": "Show routing table",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Inspect routes configured on your own device.",
+    "code": "ip route"
+  },
+  {
+    "id": 33,
+    "title": "Show listening TCP and UDP ports",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "List local listening sockets; does not scan remote hosts.",
+    "code": "ss -tuln"
+  },
+  {
+    "id": 34,
+    "title": "Show DNS resolver configuration",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Inspect which DNS resolvers your device uses.",
+    "code": "cat /etc/resolv.conf"
+  },
+  {
+    "id": 35,
+    "title": "Resolve a hostname with getent",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Resolve a public or lab hostname using the system resolver.",
+    "code": "getent hosts example.com"
+  },
+  {
+    "id": 36,
+    "title": "DNS A and AAAA lookup with dig",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Query address records for a domain you are allowed to investigate.",
+    "code": "dig example.com A\ndig example.com AAAA"
+  },
+  {
+    "id": 37,
+    "title": "DNS record summary with nslookup",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Basic DNS lookup using nslookup.",
+    "code": "nslookup example.com"
+  },
+  {
+    "id": 38,
+    "title": "Trace route to a host",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Trace the network path to a host; use only ordinary diagnostic destinations.",
+    "code": "traceroute example.com"
+  },
+  {
+    "id": 39,
+    "title": "Windows route trace alternative",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Use the Windows equivalent when you later move to a laptop.",
+    "code": "tracert example.com"
+  },
+  {
+    "id": 40,
+    "title": "Ping your own device",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Test the local TCP/IP stack using loopback.",
+    "code": "ping -c 4 127.0.0.1"
+  },
+  {
+    "id": 41,
+    "title": "Check a lab web server with curl",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Request headers from your own local practice server.",
+    "code": "curl -I http://127.0.0.1:8000"
+  },
+  {
+    "id": 42,
+    "title": "Inspect TLS connection with OpenSSL",
+    "category": "Networking",
+    "level": "Intermediate",
+    "description": "Inspect the certificate presented by a host you own or are authorized to test.",
+    "code": "openssl s_client -connect example.com:443 -servername example.com </dev/null"
+  },
+  {
+    "id": 43,
+    "title": "Nmap localhost quick scan",
+    "category": "Nmap",
+    "level": "Beginner",
+    "description": "Scan only your own device's TCP ports.",
+    "code": "nmap 127.0.0.1"
+  },
+  {
+    "id": 44,
+    "title": "Nmap localhost selected ports",
+    "category": "Nmap",
+    "level": "Beginner",
+    "description": "Check selected common ports on loopback.",
+    "code": "nmap -p 22,80,443,8000 127.0.0.1"
+  },
+  {
+    "id": 45,
+    "title": "Nmap service detection on localhost",
+    "category": "Nmap",
+    "level": "Intermediate",
+    "description": "Identify services on your own test machine.",
+    "code": "nmap -sV -p 1-1024 127.0.0.1"
+  },
+  {
+    "id": 46,
+    "title": "Nmap scan a single lab VM",
+    "category": "Nmap",
+    "level": "Intermediate",
+    "description": "Replace the example address with the IP of your own isolated lab VM only.",
+    "code": "nmap -sV -oN lab-scan.txt <YOUR_LAB_VM_IP>"
+  },
+  {
+    "id": 47,
+    "title": "Nmap scan a specific lab port range",
+    "category": "Nmap",
+    "level": "Intermediate",
+    "description": "Limit testing to a known lab machine and a small port range.",
+    "code": "nmap -p 1-1000 <YOUR_LAB_VM_IP>"
+  },
+  {
+    "id": 48,
+    "title": "Nmap TCP connect scan on localhost",
+    "category": "Nmap",
+    "level": "Intermediate",
+    "description": "Use a TCP connect scan against loopback.",
+    "code": "nmap -sT -p 1-1024 127.0.0.1"
+  },
+  {
+    "id": 49,
+    "title": "Nmap UDP scan on localhost",
+    "category": "Nmap",
+    "level": "Advanced",
+    "description": "A slow UDP scan of your own machine; results can be ambiguous.",
+    "code": "nmap -sU -p 53,123,161 127.0.0.1"
+  },
+  {
+    "id": 50,
+    "title": "Save Nmap output in all formats",
+    "category": "Nmap",
+    "level": "Beginner",
+    "description": "Save results for later review on your own lab target.",
+    "code": "nmap -oA localhost-audit 127.0.0.1"
+  },
+  {
+    "id": 51,
+    "title": "Read Nmap output file",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Review a previously saved text scan.",
+    "code": "cat localhost-audit.nmap"
+  },
+  {
+    "id": 52,
+    "title": "Python DNS lookup",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Resolve a hostname with Python's standard library.",
+    "code": "import socket\n\nhost = 'localhost'\nprint(socket.getaddrinfo(host, None))"
+  },
+  {
+    "id": 53,
+    "title": "Python reverse DNS lookup",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Look up a reverse DNS name for an IP you control.",
+    "code": "import socket\n\nip = '127.0.0.1'\ntry:\n    print(socket.gethostbyaddr(ip))\nexcept socket.herror as exc:\n    print('No reverse name:', exc)"
+  },
+  {
+    "id": 54,
+    "title": "Python check one localhost port",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Check a single service port on loopback.",
+    "code": "import socket\n\nhost, port = '127.0.0.1', 8000\nwith socket.socket() as sock:\n    sock.settimeout(2)\n    result = sock.connect_ex((host, port))\nprint('Open' if result == 0 else 'Not open')"
+  },
+  {
+    "id": 55,
+    "title": "Python inspect HTTP server response",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Inspect status and headers from your local practice web server.",
+    "code": "from urllib.request import urlopen\n\nurl = 'http://127.0.0.1:8000'\nwith urlopen(url, timeout=3) as response:\n    print('Status:', response.status)\n    print('Headers:', response.headers)"
+  },
+  {
+    "id": 56,
+    "title": "Python parse an Nmap grepable output file",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Extract host and port lines from your own saved scan output.",
+    "code": "from pathlib import Path\n\nfor line in Path('scan.gnmap').read_text(errors='replace').splitlines():\n    if line.startswith('Host:'):\n        print(line)"
+  },
+  {
+    "id": 57,
+    "title": "Calculate subnet details",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Calculate network, broadcast and usable address count.",
+    "code": "import ipaddress\n\nnet = ipaddress.ip_network('192.168.56.0/24')\nprint('Network:', net.network_address)\nprint('Broadcast:', net.broadcast_address)\nprint('Hosts:', net.num_addresses - 2)"
+  },
+  {
+    "id": 58,
+    "title": "Check whether an IP belongs to a lab subnet",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Validate that a target address is inside your explicitly defined lab subnet.",
+    "code": "import ipaddress\n\nlab = ipaddress.ip_network('192.168.56.0/24')\ntarget = ipaddress.ip_address('192.168.56.10')\nprint('Inside lab:', target in lab)"
+  },
+  {
+    "id": 59,
+    "title": "Convert a port number to service name",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Look up a well-known service name locally.",
+    "code": "import socket\n\nfor port in [22, 53, 80, 443, 8000]:\n    try:\n        print(port, socket.getservbyport(port))\n    except OSError:\n        print(port, 'unknown')"
+  },
+  {
+    "id": 60,
+    "title": "Create a lab asset inventory CSV",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Create a small inventory file for assets you own; enter only lab devices.",
+    "code": "import csv\n\nassets = [\n    {'name': 'local-web-lab', 'ip': '127.0.0.1', 'owner': 'me'},\n]\nwith open('lab-assets.csv', 'w', newline='') as f:\n    writer = csv.DictWriter(f, fieldnames=assets[0].keys())\n    writer.writeheader()\n    writer.writerows(assets)\nprint('Saved lab-assets.csv')"
+  },
+  {
+    "id": 61,
+    "title": "Basic network troubleshooting checklist",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Run a short diagnostic sequence on your own device.",
+    "code": "# Run one at a time\nip addr\nip route\nping -c 3 127.0.0.1\ngetent hosts example.com\nss -tuln"
+  }
+]
