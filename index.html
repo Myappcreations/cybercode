@@ -189,13 +189,38 @@ for header in headers:
 }
 ];
 
-let codes = JSON.parse(localStorage.getItem("cyber_codes") || "null") || starter;
+let codes = starter;
 let saved = JSON.parse(localStorage.getItem("cyber_saved") || "[]");
 let showSaved = false;
 
 function persist(){
  localStorage.setItem("cyber_codes",JSON.stringify(codes));
  localStorage.setItem("cyber_saved",JSON.stringify(saved));
+}
+
+async function loadPack() {
+  try {
+    const response = await fetch("./cyber_codes_pack_01.json");
+    const pack = await response.json();
+
+    const localCodes = JSON.parse(
+      localStorage.getItem("cyber_codes") || "[]"
+    );
+
+    codes = [...pack];
+
+    for (const item of localCodes) {
+      if (!codes.some(c => c.id === item.id)) {
+        codes.push(item);
+      }
+    }
+
+    persist();
+    render();
+  } catch (error) {
+    console.error("Code library loading error:", error);
+    render();
+  }
 }
 
 function render(){
@@ -274,7 +299,7 @@ function addCode(){
  alert("Code saved!");
 }
 
-render();
+loadPack();
 </script>
 </body>
 </html>
