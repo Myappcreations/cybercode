@@ -1,0 +1,250 @@
+[
+  {
+    "id": 93,
+    "title": "Password Entropy Estimator",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Estimate theoretical password entropy from an assumed character set. This is an approximation, not a crack-time guarantee.",
+    "code": "import math\n\nlength = 16\ncharset_size = 26 + 26 + 10 + 10  # example: letters, digits, symbols\nentropy_bits = length * math.log2(charset_size)\nprint('Estimated entropy bits:', round(entropy_bits, 1))"
+  },
+  {
+    "id": 94,
+    "title": "Generate a Local Test Password List",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Create a tiny list of dummy passwords for offline lab exercises only.",
+    "code": "words = ['welcome-demo', 'summer-demo', 'CyberLab!2026', 'correct-horse-example']\nwith open('training-wordlist.txt', 'w') as f:\n    f.write('\\n'.join(words) + '\\n')\nprint('Created training-wordlist.txt')"
+  },
+  {
+    "id": 95,
+    "title": "Create a Salted SHA-256 Demo Hash",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Demonstrate why each password hash should use a unique random salt. SHA-256 alone is not suitable for production password storage.",
+    "code": "import os, hashlib\npassword = b'Example-Only-Password'\nsalt = os.urandom(16)\ndigest = hashlib.sha256(salt + password).hexdigest()\nprint('Salt:', salt.hex())\nprint('Demo digest:', digest)"
+  },
+  {
+    "id": 96,
+    "title": "Offline Dictionary Audit of a Toy Hash",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Compare a toy SHA-256 salted hash against a tiny local wordlist. This is an intentionally limited offline demonstration.",
+    "code": "import hashlib\n\nknown_password = 'summer-demo'\nsalt = bytes.fromhex('00112233445566778899aabbccddeeff')\ntarget = hashlib.sha256(salt + known_password.encode()).hexdigest()\n\ncandidates = ['winter-demo', 'summer-demo', 'spring-demo']\nfor candidate in candidates:\n    test = hashlib.sha256(salt + candidate.encode()).hexdigest()\n    if test == target:\n        print('Toy lab match:', candidate)\n        break\nelse:\n    print('No match in this tiny test list')"
+  },
+  {
+    "id": 97,
+    "title": "Demonstrate Why Unique Salts Matter",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Show that identical passwords produce different salted hashes.",
+    "code": "import os, hashlib\npassword = b'demo-password'\nfor _ in range(2):\n    salt = os.urandom(16)\n    digest = hashlib.sha256(salt + password).hexdigest()\n    print('salt:', salt.hex(), 'hash:', digest)"
+  },
+  {
+    "id": 98,
+    "title": "PBKDF2 Password Storage Demo",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Use PBKDF2 with a random salt for a learning example; prefer a modern password-hashing library and reviewed parameters in production.",
+    "code": "import os, hashlib, base64\npassword = b'Example-Only-Password'\nsalt = os.urandom(16)\nrounds = 600_000\ndigest = hashlib.pbkdf2_hmac('sha256', password, salt, rounds)\nprint('rounds:', rounds)\nprint('salt:', base64.b64encode(salt).decode())\nprint('digest:', base64.b64encode(digest).decode())"
+  },
+  {
+    "id": 99,
+    "title": "Verify a PBKDF2 Password",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Verify a password using the stored salt and parameters.",
+    "code": "import hashlib, hmac\n\ndef verify(candidate, salt, expected, rounds=600_000):\n    actual = hashlib.pbkdf2_hmac('sha256', candidate.encode(), salt, rounds)\n    return hmac.compare_digest(actual, expected)\n\n# Supply the stored salt and digest from account registration."
+  },
+  {
+    "id": 100,
+    "title": "Generate Cryptographically Secure Password",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Generate a strong random password for a test account.",
+    "code": "import secrets, string\nalphabet = string.ascii_letters + string.digits + '!@#$%^&*()-_+'\nprint(''.join(secrets.choice(alphabet) for _ in range(24)))"
+  },
+  {
+    "id": 101,
+    "title": "Check a Password Against a Blocklist",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Reject common example passwords locally; production should use a maintained breached-password screening approach.",
+    "code": "blocked = {'password', '123456789', 'qwerty123', 'letmein'}\ndef is_blocked(password):\n    return password.casefold() in blocked\nprint(is_blocked('password'))"
+  },
+  {
+    "id": 102,
+    "title": "Password Policy Validator",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Check length and basic character variety for a training app.",
+    "code": "import re\n\ndef validate(password):\n    errors = []\n    if len(password) < 14: errors.append('Use at least 14 characters')\n    if password.casefold() in {'password', 'password123', 'qwerty123'}:\n        errors.append('Choose a less common password')\n    return errors\n\nprint(validate('Example-Only-Password!'))"
+  },
+  {
+    "id": 103,
+    "title": "Brute-Force Search Space Calculator",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Calculate the number of combinations for a toy password space without attempting logins.",
+    "code": "import math\n\nalphabet_size = 10  # digits only, for a toy example\nlength = 4\nattempts = alphabet_size ** length\nprint('Possible combinations:', attempts)\nprint('Average guesses:', math.ceil(attempts / 2))"
+  },
+  {
+    "id": 104,
+    "title": "Estimate Offline Guessing Time",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Illustrate how search-space size and assumed guesses per second affect offline audit estimates.",
+    "code": "combinations = 10 ** 8\nassumed_guesses_per_second = 100_000\nseconds = combinations / assumed_guesses_per_second\nprint('Estimated seconds:', round(seconds, 1))\nprint('Assumption only; real hash speeds vary greatly.')"
+  },
+  {
+    "id": 105,
+    "title": "Toy Brute-Force Simulation in Memory",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Search a tiny four-digit toy PIN space locally; this does not connect to any account or service.",
+    "code": "secret_pin = '0427'  # dummy training value\nattempts = 0\nfor number in range(10_000):\n    attempts += 1\n    candidate = f'{number:04d}'\n    if candidate == secret_pin:\n        print('Toy PIN found:', candidate, 'attempts:', attempts)\n        break"
+  },
+  {
+    "id": 106,
+    "title": "Detect Repeated Failed Logins in a Log",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Count failed authentication events in a local log file.",
+    "code": "from collections import Counter\n\ncounts = Counter()\nwith open('auth.log', errors='replace') as f:\n    for line in f:\n        if 'login_failed' in line:\n            fields = line.split()\n            key = fields[0] if fields else 'unknown'\n            counts[key] += 1\nprint(counts)"
+  },
+  {
+    "id": 107,
+    "title": "Simple In-Memory Login Rate Limiter",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Demonstrate a per-account attempt limit in a local app; production needs shared storage and time windows.",
+    "code": "from collections import defaultdict\n\nattempts = defaultdict(int)\nLIMIT = 5\n\ndef allow_login(account):\n    if attempts[account] >= LIMIT:\n        return False\n    attempts[account] += 1\n    return True\n\nfor _ in range(7):\n    print(allow_login('demo-user'))"
+  },
+  {
+    "id": 108,
+    "title": "Time-Window Login Rate Limiter",
+    "category": "Authentication",
+    "level": "Advanced",
+    "description": "Demonstrate a time-window limiter in memory. Use a shared store such as Redis for multi-worker production systems.",
+    "code": "from collections import defaultdict, deque\nimport time\n\nhistory = defaultdict(deque)\nWINDOW = 60\nLIMIT = 5\n\ndef allow_attempt(key):\n    now = time.time()\n    q = history[key]\n    while q and now - q[0] > WINDOW:\n        q.popleft()\n    if len(q) >= LIMIT:\n        return False\n    q.append(now)\n    return True\n\nprint(allow_attempt('demo-user'))"
+  },
+  {
+    "id": 109,
+    "title": "Exponential Backoff Calculator",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Calculate increasing delays after repeated failed attempts; cap delays to avoid unbounded waits.",
+    "code": "def delay_seconds(failures):\n    return min(2 ** max(0, failures - 1), 300)\n\nfor failures in range(1, 9):\n    print(failures, delay_seconds(failures))"
+  },
+  {
+    "id": 110,
+    "title": "Create a Six-Digit Demo OTP",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Generate a random one-time code for a local demonstration only.",
+    "code": "import secrets\notp = f'{secrets.randbelow(1_000_000):06d}'\nprint('Demo OTP:', otp)\n# Real systems must deliver it securely, expire it and prevent reuse."
+  },
+  {
+    "id": 111,
+    "title": "TOTP Code Verification with PyOTP",
+    "category": "Authentication",
+    "level": "Advanced",
+    "description": "Verify a TOTP code in your own test application using a maintained library.",
+    "code": "# Install: python -m pip install pyotp\nimport pyotp\n\nsecret = pyotp.random_base32()\ntotp = pyotp.TOTP(secret)\ncode = totp.now()\nprint('Demo secret:', secret)\nprint('Demo code:', code)\nprint('Valid:', totp.verify(code))\n# Never print or expose real user MFA secrets."
+  },
+  {
+    "id": 112,
+    "title": "Generate a Recovery Code",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Generate a high-entropy recovery code for a test account.",
+    "code": "import secrets\nrecovery_code = secrets.token_hex(16)\nprint(recovery_code)\n# Store only a secure hash of recovery codes in a real system."
+  },
+  {
+    "id": 113,
+    "title": "Hash a Recovery Code Before Storage",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Store a digest of a recovery code instead of its plaintext value.",
+    "code": "import hashlib, secrets\ncode = secrets.token_hex(16)\nstored_digest = hashlib.sha256(code.encode()).hexdigest()\nprint('Show user once:', code)\nprint('Store digest:', stored_digest)"
+  },
+  {
+    "id": 114,
+    "title": "Constant-Time Secret Comparison",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Use constant-time comparison for secret tokens.",
+    "code": "import hmac\nexpected = 'demo-secret-token'\nsubmitted = 'demo-secret-token'\nprint(hmac.compare_digest(expected, submitted))"
+  },
+  {
+    "id": 115,
+    "title": "Session Cookie Security Checklist",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Review key cookie attributes for your own web application.",
+    "code": "required = ['Secure', 'HttpOnly', 'SameSite=Lax']\nfor item in required:\n    print('[ ]', item)\n# Also review session expiry, rotation and server-side invalidation."
+  },
+  {
+    "id": 116,
+    "title": "Generate a Session Token",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Generate an unpredictable session token for a local app demonstration.",
+    "code": "import secrets\nsession_token = secrets.token_urlsafe(32)\nprint(session_token)"
+  },
+  {
+    "id": 117,
+    "title": "Invalidate a Session on Logout – Design",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Example pseudocode for server-side session invalidation.",
+    "code": "# On logout in your application:\n# 1. Find the current session record server-side.\n# 2. Mark it revoked or delete it.\n# 3. Clear the browser session cookie.\n# 4. Require authentication for subsequent requests."
+  },
+  {
+    "id": 118,
+    "title": "Check Account Lockout State",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Demonstrate a simple account state check for a local training app.",
+    "code": "accounts = {'demo-user': {'failed': 5, 'locked': True}}\n\ndef is_locked(username):\n    record = accounts.get(username)\n    return bool(record and record['locked'])\n\nprint(is_locked('demo-user'))"
+  },
+  {
+    "id": 119,
+    "title": "Audit Password Hash Algorithm Labels",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Inspect stored hash metadata labels in a toy dataset; never print real password hashes to public logs.",
+    "code": "records = ['argon2id$demo', 'scrypt$demo', 'pbkdf2_sha256$demo', 'sha1$legacy']\nfor record in records:\n    algorithm = record.split('$', 1)[0]\n    print(algorithm, 'REVIEW' if algorithm in {'sha1', 'md5'} else 'modern family – verify parameters')"
+  },
+  {
+    "id": 120,
+    "title": "Compare Password Hashes Safely",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Use hmac.compare_digest when comparing derived hash bytes.",
+    "code": "import hmac\nstored = bytes.fromhex('aabbcc')\ncandidate = bytes.fromhex('aabbcc')\nprint(hmac.compare_digest(stored, candidate))"
+  },
+  {
+    "id": 121,
+    "title": "Authentication Security Event Summary",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Summarize event types from a local training log.",
+    "code": "from collections import Counter\n\nsummary = Counter()\nwith open('auth.log', errors='replace') as f:\n    for line in f:\n        for event in ['login_success', 'login_failed', 'mfa_failed', 'password_reset']:\n            if event in line:\n                summary[event] += 1\nprint(summary)"
+  },
+  {
+    "id": 122,
+    "title": "Create a Password Audit Report CSV",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Create a CSV report using dummy account audit results; do not store plaintext passwords.",
+    "code": "import csv\n\nrows = [\n    {'account': 'training-user-1', 'hash_scheme': 'argon2id', 'mfa_enabled': 'yes', 'finding': 'none'},\n    {'account': 'training-user-2', 'hash_scheme': 'sha1', 'mfa_enabled': 'no', 'finding': 'upgrade hash and enable MFA'},\n]\nwith open('password-audit.csv', 'w', newline='') as f:\n    writer = csv.DictWriter(f, fieldnames=rows[0].keys())\n    writer.writeheader()\n    writer.writerows(rows)\nprint('Created password-audit.csv')"
+  },
+  {
+    "id": 123,
+    "title": "Authentication Hardening Checklist",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "A practical defensive checklist for your own website.",
+    "code": "checks = ['Use Argon2id or scrypt with reviewed parameters', 'Require MFA for privileged accounts', 'Rate-limit authentication attempts', 'Use generic login error messages', 'Rotate sessions after login', 'Secure cookies with Secure and HttpOnly', 'Expire and revoke sessions on logout', 'Monitor suspicious authentication events', 'Protect password reset flows']\nfor item in checks:\n    print('[ ]', item)"
+  }
+]

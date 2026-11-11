@@ -1,0 +1,258 @@
+[
+  {
+    "id": 124,
+    "title": "Inspect HTTP Request with Python",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Send a simple GET request to your own local practice app and inspect its response.",
+    "code": "from urllib.request import Request, urlopen\n\nreq = Request('http://127.0.0.1:8000/', headers={'User-Agent': 'CyberLabPro-Training'})\nwith urlopen(req, timeout=3) as response:\n    print('Status:', response.status)\n    print('Content-Type:', response.headers.get('Content-Type'))"
+  },
+  {
+    "id": 125,
+    "title": "Send JSON to Your Local API",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Send a JSON request to an API endpoint you own.",
+    "code": "import json\nfrom urllib.request import Request, urlopen\n\npayload = json.dumps({'name': 'training-item'}).encode()\nreq = Request('http://127.0.0.1:8000/api/demo', data=payload,\n              headers={'Content-Type': 'application/json'}, method='POST')\nwith urlopen(req, timeout=3) as response:\n    print(response.status, response.read().decode())"
+  },
+  {
+    "id": 126,
+    "title": "Inspect Response Headers",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Review security-related headers on your local application.",
+    "code": "from urllib.request import urlopen\n\nwith urlopen('http://127.0.0.1:8000/', timeout=3) as r:\n    for key, value in r.headers.items():\n        print(key + ':', value)"
+  },
+  {
+    "id": 127,
+    "title": "Check Content Type of Local Endpoint",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Verify that an API returns the expected media type.",
+    "code": "from urllib.request import urlopen\n\nwith urlopen('http://127.0.0.1:8000/api/demo', timeout=3) as r:\n    content_type = r.headers.get_content_type()\n    print('Content type:', content_type)\n    print('JSON response:', content_type == 'application/json')"
+  },
+  {
+    "id": 128,
+    "title": "Inspect Redirect Destination",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Review redirect behavior on your own local test app.",
+    "code": "from urllib.request import build_opener, HTTPRedirectHandler, Request\n\nclass NoRedirect(HTTPRedirectHandler):\n    def redirect_request(self, req, fp, code, msg, headers, newurl):\n        return None\n\nopener = build_opener(NoRedirect)\ntry:\n    opener.open(Request('http://127.0.0.1:8000/redirect-demo'), timeout=3)\nexcept Exception as exc:\n    print('Response:', exc)\n    print('Review the Location header in the response.')"
+  },
+  {
+    "id": 129,
+    "title": "Parse a URL into Components",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Understand scheme, host, path and query components.",
+    "code": "from urllib.parse import urlsplit, parse_qs\n\nurl = 'http://127.0.0.1:8000/search?q=training&page=1'\np = urlsplit(url)\nprint('Scheme:', p.scheme)\nprint('Host:', p.netloc)\nprint('Path:', p.path)\nprint('Query:', parse_qs(p.query))"
+  },
+  {
+    "id": 130,
+    "title": "Build a URL Safely",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Encode query parameters rather than concatenating raw user input.",
+    "code": "from urllib.parse import urlencode\n\nparams = {'q': 'cyber security lab', 'page': 1}\nprint('/search?' + urlencode(params))"
+  },
+  {
+    "id": 131,
+    "title": "Review CORS Headers on Local API",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Inspect CORS response headers on your own API; do not assume a missing header is automatically a vulnerability.",
+    "code": "from urllib.request import urlopen\n\nwith urlopen('http://127.0.0.1:8000/api/demo', timeout=3) as r:\n    for name in ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials', 'Vary']:\n        print(name, ':', r.headers.get(name, 'not present'))"
+  },
+  {
+    "id": 132,
+    "title": "Send a Local OPTIONS Preflight",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Inspect the preflight response from your own API.",
+    "code": "from urllib.request import Request, urlopen\n\nreq = Request('http://127.0.0.1:8000/api/demo', method='OPTIONS',\n              headers={'Origin': 'http://localhost:3000',\n                       'Access-Control-Request-Method': 'POST'})\ntry:\n    with urlopen(req, timeout=3) as r:\n        print(r.status, dict(r.headers))\nexcept Exception as exc:\n    print('Review local preflight response:', exc)"
+  },
+  {
+    "id": 133,
+    "title": "Check HTTP Methods on Local Endpoint",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Check allowed methods on a local route using OPTIONS.",
+    "code": "from urllib.request import Request, urlopen\n\nreq = Request('http://127.0.0.1:8000/api/demo', method='OPTIONS')\ntry:\n    with urlopen(req, timeout=3) as r:\n        print('Allow:', r.headers.get('Allow'))\nexcept Exception as exc:\n    print(exc)"
+  },
+  {
+    "id": 134,
+    "title": "Validate API Content Length",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Reject oversized request bodies before parsing them.",
+    "code": "MAX_BODY = 1_000_000\n\ndef acceptable_content_length(value):\n    try:\n        size = int(value)\n        return 0 <= size <= MAX_BODY\n    except (TypeError, ValueError):\n        return False\n\nprint(acceptable_content_length('512'))"
+  },
+  {
+    "id": 135,
+    "title": "Validate API Content Type",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Require JSON content type for a JSON API route.",
+    "code": "def is_json_content_type(value):\n    return (value or '').split(';', 1)[0].strip().lower() == 'application/json'\n\nprint(is_json_content_type('application/json; charset=utf-8'))"
+  },
+  {
+    "id": 136,
+    "title": "Create an API Request ID",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Generate a unique identifier to correlate logs for a request.",
+    "code": "import uuid\n\nrequest_id = str(uuid.uuid4())\nprint(request_id)"
+  },
+  {
+    "id": 137,
+    "title": "Redact Authorization Header in Logs",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Prevent bearer tokens and cookies from leaking into logs.",
+    "code": "def safe_headers(headers):\n    hidden = {'authorization', 'cookie', 'set-cookie'}\n    return {k: ('[REDACTED]' if k.lower() in hidden else v)\n            for k, v in headers.items()}\n\nprint(safe_headers({'Authorization': 'Bearer demo', 'Accept': 'application/json'}))"
+  },
+  {
+    "id": 138,
+    "title": "Check API Response for Debug Leakage",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Look for common debug indicators in a response from your own training API.",
+    "code": "markers = ['Traceback (most recent call last)', 'SECRET_KEY', 'DATABASE_URL', 'debug=true']\nbody = 'Example response body from local training app'\nfor marker in markers:\n    if marker.lower() in body.lower():\n        print('Review possible information disclosure:', marker)"
+  },
+  {
+    "id": 139,
+    "title": "Simple API Schema Validation",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Validate required fields and reject unexpected types.",
+    "code": "def validate_profile(data):\n    if not isinstance(data, dict):\n        return False\n    allowed = {'display_name', 'bio'}\n    if set(data) - allowed:\n        return False\n    name = data.get('display_name')\n    bio = data.get('bio', '')\n    return isinstance(name, str) and len(name) <= 40 and isinstance(bio, str) and len(bio) <= 300\n\nprint(validate_profile({'display_name': 'Lab User', 'bio': 'Practice account'}))"
+  },
+  {
+    "id": 140,
+    "title": "Enforce Object-Level API Authorization",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Check that the authenticated user owns the requested record or has an explicit admin role.",
+    "code": "def authorized_to_read(user, record):\n    return user['role'] == 'admin' or user['id'] == record['owner_id']\n\nuser = {'id': 12, 'role': 'user'}\nrecord = {'id': 44, 'owner_id': 12}\nprint(authorized_to_read(user, record))"
+  },
+  {
+    "id": 141,
+    "title": "Prevent Mass Assignment",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Copy only explicitly permitted fields from an API payload.",
+    "code": "ALLOWED_FIELDS = {'display_name', 'bio'}\n\ndef safe_profile_update(payload):\n    return {k: v for k, v in payload.items() if k in ALLOWED_FIELDS}\n\nprint(safe_profile_update({'display_name': 'Alex', 'role': 'admin'}))"
+  },
+  {
+    "id": 142,
+    "title": "Paginate API Results Safely",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Clamp pagination inputs to prevent unbounded result requests.",
+    "code": "def pagination(page, size):\n    page = max(1, min(int(page), 10_000))\n    size = max(1, min(int(size), 100))\n    return page, size\n\nprint(pagination('1', '25'))"
+  },
+  {
+    "id": 143,
+    "title": "Burp Suite Proxy Practice Checklist",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Use Burp Community Proxy only with your own local practice website.",
+    "code": "# Manual steps:\n# 1. Start your local practice web app.\n# 2. Open Burp Suite and use its temporary browser.\n# 3. Browse only http://127.0.0.1:8000 or your lab hostname.\n# 4. Inspect request method, path, headers, cookies and body.\n# 5. Forward the request and compare the response."
+  },
+  {
+    "id": 144,
+    "title": "Burp Repeater Practice Checklist",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Replay and modify requests only against your own lab target.",
+    "code": "# In Burp:\n# 1. Capture a request to your local training app.\n# 2. Send it to Repeater.\n# 3. Change one harmless field at a time.\n# 4. Observe status, headers and response body.\n# 5. Record expected vs actual behavior."
+  },
+  {
+    "id": 145,
+    "title": "OWASP ZAP Baseline Scan – Local Lab",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Run a passive baseline scan against your own local test app only.",
+    "code": "# Install ZAP from its official project distribution.\n# Example Docker command when Docker is available later:\ndocker run --rm -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://host.docker.internal:8000"
+  },
+  {
+    "id": 146,
+    "title": "Create a Local Security Test Case",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Record a repeatable test with expected and observed outcomes.",
+    "code": "test_case = {\n    'name': 'Unauthenticated profile access',\n    'target': 'local training app',\n    'expected': 'HTTP 401 or 403',\n    'observed': 'Record actual response',\n    'result': 'PENDING'\n}\nfor key, value in test_case.items():\n    print(f'{key}: {value}')"
+  },
+  {
+    "id": 147,
+    "title": "Compare Expected and Actual HTTP Status",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Create a small assertion for an API authorization test.",
+    "code": "expected_status = 401\nactual_status = 401\nassert actual_status == expected_status, 'Unexpected authorization response'\nprint('Test passed')"
+  },
+  {
+    "id": 148,
+    "title": "Create a Pentest Finding Record",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Structure a finding for your own lab report.",
+    "code": "finding = {\n    'title': 'Missing authorization check',\n    'severity': 'High',\n    'affected_asset': 'Local training API',\n    'evidence': 'Attach sanitized request/response',\n    'impact': 'A user may access another user’s data',\n    'remediation': 'Enforce server-side object ownership checks'\n}\nprint(finding)"
+  },
+  {
+    "id": 149,
+    "title": "Calculate a CVSS Score Placeholder",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Record a CVSS version and score after using the official calculator; do not guess a score.",
+    "code": "finding = {'cvss_version': '4.0', 'score': None, 'vector': None}\nprint('Complete using the official CVSS calculator:', finding)"
+  },
+  {
+    "id": 150,
+    "title": "Check Security.txt on Your Local Site",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Retrieve the security contact file from your own local site.",
+    "code": "from urllib.request import urlopen\nurl = 'http://127.0.0.1:8000/.well-known/security.txt'\ntry:\n    with urlopen(url, timeout=3) as r:\n        print(r.read(2000).decode(errors='replace'))\nexcept Exception as exc:\n    print('Not configured:', exc)"
+  },
+  {
+    "id": 151,
+    "title": "Verify HTTPS Redirect on Your Own Site",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Check whether your own production hostname redirects HTTP to HTTPS; use localhost for lab-only HTTP testing.",
+    "code": "from urllib.request import build_opener, HTTPRedirectHandler, Request\n\nclass StopRedirect(HTTPRedirectHandler):\n    def redirect_request(self, req, fp, code, msg, headers, newurl):\n        return None\n\nurl = 'http://YOUR-OWN-DOMAIN/'\ntry:\n    build_opener(StopRedirect).open(Request(url), timeout=5)\nexcept Exception as exc:\n    print('Inspect response Location header:', exc)"
+  },
+  {
+    "id": 152,
+    "title": "Check TLS Certificate Hostname",
+    "category": "Networking",
+    "level": "Intermediate",
+    "description": "Use the system TLS verifier to confirm the certificate matches your authorized lab hostname.",
+    "code": "import ssl, socket\n\nhost = 'localhost'\ncontext = ssl.create_default_context()\ntry:\n    with socket.create_connection((host, 443), timeout=3) as sock:\n        with context.wrap_socket(sock, server_hostname=host) as tls:\n            print('Verified TLS:', tls.version())\nexcept Exception as exc:\n    print('TLS check failed:', exc)"
+  },
+  {
+    "id": 153,
+    "title": "API Security Review Checklist",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Review key API controls in your own practice project.",
+    "code": "checks = ['Authentication required where appropriate', 'Object-level authorization on every record', 'Input schema and size validation', 'Rate limits on sensitive endpoints', 'No secrets in responses or logs', 'CORS allowlist is narrow', 'Errors do not expose stack traces', 'Pagination limits enforced', 'HTTPS used outside local lab']\nfor item in checks:\n    print('[ ]', item)"
+  },
+  {
+    "id": 154,
+    "title": "Export HTTP Test Notes to JSON",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Save sanitized test observations in a local JSON file.",
+    "code": "import json\n\nnotes = {'target': '127.0.0.1:8000', 'test': 'response headers', 'observations': ['CSP present', 'X-Content-Type-Options present']}\nwith open('http-test-notes.json', 'w') as f:\n    json.dump(notes, f, indent=2)\nprint('Saved http-test-notes.json')"
+  },
+  {
+    "id": 155,
+    "title": "Compare Two API Responses",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Compare sanitized JSON responses from two versions of your own local API.",
+    "code": "before = {'status': 200, 'body': {'role': 'user'}}\nafter = {'status': 403, 'body': {'error': 'Forbidden'}}\nprint('Before:', before)\nprint('After:', after)\nprint('Authorization behavior changed:', before['status'] != after['status'])"
+  }
+]

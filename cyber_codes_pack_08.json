@@ -1,0 +1,258 @@
+[
+  {
+    "id": 220,
+    "title": "Show Android/Termux system information",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Print basic operating-system and Python details for your own device.",
+    "code": "import platform, os, sys\nprint(\"System:\", platform.system())\nprint(\"Release:\", platform.release())\nprint(\"Machine:\", platform.machine())\nprint(\"Python:\", sys.version.split()[0])\nprint(\"Current directory:\", os.getcwd())"
+  },
+  {
+    "id": 221,
+    "title": "Check disk space",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Review storage usage on your own device.",
+    "code": "import shutil\ntotal, used, free = shutil.disk_usage(\"/\")\nfor label, value in [(\"Total\", total), (\"Used\", used), (\"Free\", free)]:\n    print(f\"{label}: {value / (1024**3):.2f} GB\")"
+  },
+  {
+    "id": 222,
+    "title": "List large files in a chosen folder",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Find large files in a directory you own; set ROOT to a permitted folder.",
+    "code": "from pathlib import Path\nROOT = Path.home()\nLIMIT_MB = 50\nfor path in ROOT.rglob(\"*\"):\n    try:\n        if path.is_file() and path.stat().st_size >= LIMIT_MB * 1024**2:\n            print(f\"{path} — {path.stat().st_size / 1024**2:.1f} MB\")\n    except (PermissionError, OSError):\n        continue"
+  },
+  {
+    "id": 223,
+    "title": "Find files modified in the last day",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Audit recent changes under your own home directory.",
+    "code": "from pathlib import Path\nimport time\nroot = Path.home()\ncutoff = time.time() - 24 * 60 * 60\nfor path in root.rglob(\"*\"):\n    try:\n        if path.is_file() and path.stat().st_mtime >= cutoff:\n            print(path)\n    except (PermissionError, OSError):\n        pass"
+  },
+  {
+    "id": 224,
+    "title": "Calculate SHA-256 for a file",
+    "category": "File Integrity",
+    "level": "Beginner",
+    "description": "Create a hash to verify a file has not changed.",
+    "code": "import hashlib\nfrom pathlib import Path\nfile_path = Path(\"sample.txt\")  # Change to your own file\ndigest = hashlib.sha256()\nwith file_path.open(\"rb\") as file:\n    for chunk in iter(lambda: file.read(65536), b\"\"):\n        digest.update(chunk)\nprint(digest.hexdigest())"
+  },
+  {
+    "id": 225,
+    "title": "Compare file hash with expected value",
+    "category": "File Integrity",
+    "level": "Beginner",
+    "description": "Verify a downloaded file against a hash supplied by its trusted publisher.",
+    "code": "import hashlib\nfrom pathlib import Path\npath = Path(\"download.zip\")\nexpected = \"PASTE_TRUSTED_SHA256_HERE\".lower()\nactual = hashlib.sha256(path.read_bytes()).hexdigest()\nprint(\"MATCH\" if actual == expected else \"MISMATCH — do not trust this copy\")"
+  },
+  {
+    "id": 226,
+    "title": "Inspect file permissions",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Display permission bits for files in a folder you own.",
+    "code": "from pathlib import Path\nimport stat\nfor path in Path.home().iterdir():\n    try:\n        mode = stat.filemode(path.stat().st_mode)\n        print(mode, path.name)\n    except OSError:\n        continue"
+  },
+  {
+    "id": 227,
+    "title": "Set restrictive permissions on a private file",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Set owner-only read/write permissions on your own sensitive file.",
+    "code": "from pathlib import Path\nimport os\nprivate_file = Path.home() / \"private-notes.txt\"\nif private_file.exists():\n    os.chmod(private_file, 0o600)\n    print(\"Permissions set to owner read/write only\")"
+  },
+  {
+    "id": 228,
+    "title": "Find world-writable files in your home folder",
+    "category": "Linux & Termux",
+    "level": "Intermediate",
+    "description": "Identify files in your own home folder that are writable by everyone.",
+    "code": "from pathlib import Path\nimport os, stat\nfor path in Path.home().rglob(\"*\"):\n    try:\n        if path.is_file() and path.stat().st_mode & stat.S_IWOTH:\n            print(\"World-writable:\", path)\n    except (PermissionError, OSError):\n        pass"
+  },
+  {
+    "id": 229,
+    "title": "List running processes",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Use the standard ps command to inspect processes on your device.",
+    "code": "# Termux / Linux shell\nps -A"
+  },
+  {
+    "id": 230,
+    "title": "Find a process by name",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Search your own process list; replace TERM with a process name.",
+    "code": "# Termux / Linux shell\nps -A | grep -i 'TERM'"
+  },
+  {
+    "id": 231,
+    "title": "Show listening network sockets",
+    "category": "Networking",
+    "level": "Intermediate",
+    "description": "Inspect services listening on your own device. Install iproute2 if needed.",
+    "code": "# Termux / Linux shell\nss -tuln"
+  },
+  {
+    "id": 232,
+    "title": "Show network interfaces and addresses",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Display the network interfaces available on your device.",
+    "code": "# Termux / Linux shell\nip addr"
+  },
+  {
+    "id": 233,
+    "title": "Show the routing table",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Review the routes configured on your own device.",
+    "code": "# Termux / Linux shell\nip route"
+  },
+  {
+    "id": 234,
+    "title": "Check DNS resolution",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Resolve a domain to confirm DNS configuration; use a domain you are permitted to query.",
+    "code": "# Termux / Linux shell\ngetent hosts example.com\n# Alternative if getent is unavailable:\npython -c \"import socket; print(socket.getaddrinfo('example.com', 443))\" "
+  },
+  {
+    "id": 235,
+    "title": "Test connectivity to localhost",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Check whether a service on your own device responds on a local port.",
+    "code": "import socket\nhost, port = \"127.0.0.1\", 8000\nwith socket.socket() as sock:\n    sock.settimeout(2)\n    try:\n        sock.connect((host, port))\n        print(\"Local service is reachable\")\n    except OSError as error:\n        print(\"No connection:\", error)"
+  },
+  {
+    "id": 236,
+    "title": "Start a local-only HTTP test server",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Serve a folder to your own device only; binding to 127.0.0.1 prevents LAN exposure.",
+    "code": "# Run inside the folder you want to test\npython -m http.server 8000 --bind 127.0.0.1\n# Open http://127.0.0.1:8000 on the same device"
+  },
+  {
+    "id": 237,
+    "title": "Check a local HTTP response header",
+    "category": "Networking",
+    "level": "Intermediate",
+    "description": "Inspect security headers on a local development server you control.",
+    "code": "import urllib.request\nurl = \"http://127.0.0.1:8000/\"\ntry:\n    with urllib.request.urlopen(url, timeout=3) as response:\n        print(\"Status:\", response.status)\n        for key, value in response.headers.items():\n            print(f\"{key}: {value}\")\nexcept Exception as error:\n    print(\"Local check failed:\", error)"
+  },
+  {
+    "id": 238,
+    "title": "Monitor authentication log keywords",
+    "category": "Log Analysis",
+    "level": "Intermediate",
+    "description": "Search a copied or authorized log file for authentication-related events.",
+    "code": "from pathlib import Path\nlog_file = Path(\"auth.log\")  # Use a log file you are authorized to inspect\nkeywords = (\"failed\", \"invalid password\", \"authentication failure\")\nif log_file.exists():\n    for number, line in enumerate(log_file.read_text(errors=\"replace\").splitlines(), 1):\n        if any(word in line.lower() for word in keywords):\n            print(f\"{number}: {line}\")"
+  },
+  {
+    "id": 239,
+    "title": "Count failed-login events in a log",
+    "category": "Log Analysis",
+    "level": "Beginner",
+    "description": "Count common failed-login phrases in an authorized sample log.",
+    "code": "from pathlib import Path\ntext = Path(\"auth.log\").read_text(errors=\"replace\").lower()\nphrases = (\"failed password\", \"authentication failure\", \"login failed\")\nfor phrase in phrases:\n    print(f\"{phrase}: {text.count(phrase)}\")"
+  },
+  {
+    "id": 240,
+    "title": "Extract timestamps from ISO-style logs",
+    "category": "Log Analysis",
+    "level": "Intermediate",
+    "description": "Extract ISO-like timestamps from a text log for quick triage.",
+    "code": "import re\nfrom pathlib import Path\npattern = re.compile(r\"\\b\\d{4}-\\d{2}-\\d{2}[ T]\\d{2}:\\d{2}:\\d{2}\\b\")\nfor line in Path(\"app.log\").read_text(errors=\"replace\").splitlines():\n    match = pattern.search(line)\n    if match:\n        print(match.group(), line)"
+  },
+  {
+    "id": 241,
+    "title": "Create a simple log backup",
+    "category": "Log Analysis",
+    "level": "Beginner",
+    "description": "Copy a log before analysis so the original remains unchanged.",
+    "code": "from pathlib import Path\nfrom shutil import copy2\nsource = Path(\"app.log\")\nbackup = Path(\"app.log.backup\")\ncopy2(source, backup)\nprint(\"Backup created:\", backup)"
+  },
+  {
+    "id": 242,
+    "title": "Check Python package versions",
+    "category": "Python Security",
+    "level": "Beginner",
+    "description": "List installed Python packages and versions in the current environment.",
+    "code": "import importlib.metadata as metadata\nfor package in sorted(metadata.distributions(), key=lambda p: (p.metadata[\"Name\"] or \"\").lower()):\n    print(package.metadata[\"Name\"], package.version)"
+  },
+  {
+    "id": 243,
+    "title": "Audit Python dependencies with pip-audit",
+    "category": "Python Security",
+    "level": "Intermediate",
+    "description": "Audit dependencies in your own Python environment for known advisories.",
+    "code": "# Install in your own environment, then run:\npython -m pip install pip-audit\npython -m pip_audit"
+  },
+  {
+    "id": 244,
+    "title": "Check for outdated Python packages",
+    "category": "Python Security",
+    "level": "Beginner",
+    "description": "Review packages that have newer versions available; inspect changes before upgrading.",
+    "code": "# Termux / Linux shell\npython -m pip list --outdated"
+  },
+  {
+    "id": 245,
+    "title": "Create a least-privilege project folder",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Create a private project directory with owner-only access.",
+    "code": "from pathlib import Path\nimport os\nfolder = Path.home() / \"cyber-lab\"\nfolder.mkdir(mode=0o700, exist_ok=True)\nos.chmod(folder, 0o700)\nprint(\"Private lab folder:\", folder)"
+  },
+  {
+    "id": 246,
+    "title": "Safely remove a temporary file",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Delete only a specifically named temporary file inside your lab directory.",
+    "code": "from pathlib import Path\nlab = Path.home() / \"cyber-lab\"\ntarget = lab / \"test.tmp\"\nif target.is_file() and target.parent == lab:\n    target.unlink()\n    print(\"Temporary file removed\")\nelse:\n    print(\"File not found; nothing removed\")"
+  },
+  {
+    "id": 247,
+    "title": "Generate a random lab token",
+    "category": "Python Security",
+    "level": "Beginner",
+    "description": "Generate a cryptographically secure random token for a local test application.",
+    "code": "import secrets\ntoken = secrets.token_urlsafe(32)\nprint(token)\n# Keep real tokens private; do not commit them to Git."
+  },
+  {
+    "id": 248,
+    "title": "Load secrets from environment variables",
+    "category": "Python Security",
+    "level": "Intermediate",
+    "description": "Avoid hard-coding API keys or passwords in source code.",
+    "code": "import os\napi_key = os.environ.get(\"LAB_API_KEY\")\nif not api_key:\n    raise RuntimeError(\"Set LAB_API_KEY in your environment\")\nprint(\"Lab key loaded; value hidden\")"
+  },
+  {
+    "id": 249,
+    "title": "Redact email addresses in a log excerpt",
+    "category": "Log Analysis",
+    "level": "Intermediate",
+    "description": "Mask email addresses before sharing authorized log excerpts.",
+    "code": "import re\nfrom pathlib import Path\ntext = Path(\"app.log\").read_text(errors=\"replace\")\nredacted = re.sub(r\"[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}\", \"[REDACTED_EMAIL]\", text)\nPath(\"app.redacted.log\").write_text(redacted)\nprint(\"Redacted copy saved\")"
+  },
+  {
+    "id": 250,
+    "title": "Create a system audit checklist",
+    "category": "Linux & Termux",
+    "level": "Beginner",
+    "description": "Print a repeatable checklist for a basic defensive review of your own device.",
+    "code": "checks = [\n    \"Review installed packages and remove unused ones\",\n    \"Apply OS and app updates\",\n    \"Review listening services\",\n    \"Check file and directory permissions\",\n    \"Back up important files\",\n    \"Review authentication and application logs\",\n    \"Keep secrets out of source control\",\n]\nfor index, check in enumerate(checks, 1):\n    print(f\"{index}. [ ] {check}\")"
+  },
+  {
+    "id": 251,
+    "title": "Record a local lab inventory as JSON",
+    "category": "Python Security",
+    "level": "Intermediate",
+    "description": "Save a small inventory of your own lab assets for repeatable testing.",
+    "code": "import json\nfrom pathlib import Path\ninventory = {\n    \"lab_name\": \"Cyber Lab Pro\",\n    \"scope\": [\"127.0.0.1\", \"localhost\"],\n    \"purpose\": \"Authorized local learning\",\n    \"owner\": \"me\"\n}\nPath(\"lab_inventory.json\").write_text(json.dumps(inventory, indent=2))\nprint(\"Inventory saved\")"
+  }
+]

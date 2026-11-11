@@ -1,0 +1,258 @@
+[
+  {
+    "id": 188,
+    "title": "Create a Vulnerability Finding",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Structure a finding with title, asset, impact, evidence and remediation.",
+    "code": "finding = {\n 'id': 'LAB-001',\n 'title': 'Missing security header',\n 'asset': 'Local training website',\n 'severity': 'Low',\n 'evidence': 'Header absent in captured local response',\n 'impact': 'Reduced browser-side protection',\n 'remediation': 'Configure and verify the appropriate response header'\n}\nprint(finding)"
+  },
+  {
+    "id": 189,
+    "title": "Map Severity to Priority",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Map qualitative severity labels to a simple remediation priority. This is a workflow aid, not a CVSS calculation.",
+    "code": "priority = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Informational': 5}\nseverity = 'Medium'\nprint('Remediation priority:', priority.get(severity, 'Review'))"
+  },
+  {
+    "id": 190,
+    "title": "Calculate CVSS 4.0 Using Official Calculator",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Use the official CVSS calculator and record the result rather than guessing a score.",
+    "code": "# Official calculator:\n# https://www.first.org/cvss/calculator/4.0\n# Record the chosen vector and score in your report.\ncvss_version = '4.0'\nscore = None  # Fill only after a justified assessment\nprint(cvss_version, score)"
+  },
+  {
+    "id": 191,
+    "title": "Look Up a CVE Record from NVD",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Retrieve public CVE metadata by a known CVE ID for research.",
+    "code": "import json\nfrom urllib.request import urlopen\n\ncve_id = 'CVE-2021-44228'\nurl = f'https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve_id}'\nwith urlopen(url, timeout=10) as response:\n    data = json.loads(response.read())\nprint('Records returned:', len(data.get('vulnerabilities', [])))"
+  },
+  {
+    "id": 192,
+    "title": "Extract CVE IDs from a Report",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Find CVE identifier references in your own report text.",
+    "code": "import re\nfrom pathlib import Path\n\ntext = Path('assessment-notes.txt').read_text(errors='replace')\nids = sorted(set(re.findall(r'CVE-\\d{4}-\\d{4,}', text)))\nprint('\\n'.join(ids) if ids else 'No CVE IDs found')"
+  },
+  {
+    "id": 193,
+    "title": "Create an Asset Scope Register",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Document explicitly authorized lab assets and exclusions.",
+    "code": "scope = {\n 'in_scope': ['127.0.0.1:8000', '192.168.56.10'],\n 'out_of_scope': ['All public third-party systems'],\n 'authorization': 'Owner-operated training lab'\n}\nprint(scope)"
+  },
+  {
+    "id": 194,
+    "title": "Check Whether an IP Is in Approved Scope",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Reject an IP that is outside the lab network allowlist.",
+    "code": "import ipaddress\n\nallowed = [ipaddress.ip_network('127.0.0.0/8'), ipaddress.ip_network('192.168.56.0/24')]\ndef in_scope(value):\n    ip = ipaddress.ip_address(value)\n    return any(ip in net for net in allowed)\nprint(in_scope('192.168.56.10'))"
+  },
+  {
+    "id": 195,
+    "title": "Create an Evidence Register",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Track evidence filenames, timestamps and descriptions without storing secrets.",
+    "code": "evidence = [\n {'id': 'EV-001', 'file': 'response-headers.txt', 'description': 'Local response headers', 'sensitive_data_removed': True},\n {'id': 'EV-002', 'file': 'request-redacted.txt', 'description': 'Sanitized test request', 'sensitive_data_removed': True}\n]\nfor item in evidence:\n    print(item)"
+  },
+  {
+    "id": 196,
+    "title": "Hash Evidence Files",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Create checksums for evidence files to detect later changes.",
+    "code": "from pathlib import Path\nimport hashlib\n\nfor path in Path('evidence').glob('*'):\n    if path.is_file():\n        print(path.name, hashlib.sha256(path.read_bytes()).hexdigest())"
+  },
+  {
+    "id": 197,
+    "title": "Create a Remediation Tracker CSV",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Track owners, due dates and retest status for findings.",
+    "code": "import csv\n\nrows = [{'id':'LAB-001','severity':'Medium','owner':'Developer','status':'Open','retest':'Pending'}]\nwith open('remediation.csv','w',newline='') as f:\n    writer=csv.DictWriter(f,fieldnames=rows[0].keys())\n    writer.writeheader(); writer.writerows(rows)\nprint('Tracker created')"
+  },
+  {
+    "id": 198,
+    "title": "Calculate Finding Age",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Calculate the age of a finding from its discovery date.",
+    "code": "from datetime import date\n\nfound = date.fromisoformat('2026-11-01')\nprint('Finding age in days:', (date.today()-found).days)"
+  },
+  {
+    "id": 199,
+    "title": "Create an Executive Summary",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Generate a short summary from counts of assessed findings.",
+    "code": "findings = [{'severity':'High'},{'severity':'Medium'},{'severity':'Low'}]\nfrom collections import Counter\ncounts = Counter(x['severity'] for x in findings)\nprint('Assessment summary:', dict(counts))"
+  },
+  {
+    "id": 200,
+    "title": "Generate a Markdown Finding Report",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Write a reusable vulnerability report template.",
+    "code": "report = '''# Finding: [Title]\\n\\n## Severity\\n[Severity and justified CVSS vector]\\n\\n## Affected Asset\\n[Authorized asset]\\n\\n## Description\\n[What was observed]\\n\\n## Evidence\\n[Sanitized request/response or screenshot reference]\\n\\n## Impact\\n[Realistic business and technical impact]\\n\\n## Remediation\\n[Specific corrective action]\\n\\n## Retest\\n[Pass/fail and date]\\n'''\nopen('finding-template.md','w').write(report)\nprint('Template saved')"
+  },
+  {
+    "id": 201,
+    "title": "Export Findings to JSON",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Store structured assessment findings for later report generation.",
+    "code": "import json\n\nfindings=[{'id':'LAB-001','title':'Example finding','severity':'Low','status':'Open'}]\nwith open('findings.json','w') as f:\n    json.dump(findings,f,indent=2)\nprint('Findings exported')"
+  },
+  {
+    "id": 202,
+    "title": "Validate Required Finding Fields",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Check that a finding contains the minimum reporting fields.",
+    "code": "required={'id','title','severity','asset','evidence','impact','remediation'}\nfinding={'id':'LAB-001','title':'Demo','severity':'Low','asset':'localhost','evidence':'EV-001','impact':'Limited','remediation':'Configure control'}\nmissing=required-set(finding)\nprint('Complete' if not missing else 'Missing: '+', '.join(sorted(missing)))"
+  },
+  {
+    "id": 203,
+    "title": "Deduplicate Findings by Fingerprint",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Avoid duplicate entries using a stable combination of title and asset.",
+    "code": "findings=[('Missing CSP','local-app'),('Missing CSP','local-app'),('Weak cookie flags','local-app')]\nunique=list(dict.fromkeys(findings))\nprint(unique)"
+  },
+  {
+    "id": 204,
+    "title": "Track Retest Results",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Record whether a remediation has passed a controlled retest.",
+    "code": "retest={'finding':'LAB-001','before':'Header missing','fix_applied':True,'after':'Header present','result':'PASS'}\nprint(retest)"
+  },
+  {
+    "id": 205,
+    "title": "Create a Simple Risk Matrix",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Combine qualitative likelihood and impact for prioritization; document the chosen methodology.",
+    "code": "levels={'Low':1,'Medium':2,'High':3}\ndef risk(likelihood, impact):\n    score=levels[likelihood]*levels[impact]\n    return 'High' if score>=6 else 'Medium' if score>=3 else 'Low'\nprint(risk('Medium','High'))"
+  },
+  {
+    "id": 206,
+    "title": "Inventory Software Versions from a Text File",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Parse a simple local software inventory for review.",
+    "code": "from pathlib import Path\n\nfor line in Path('software-inventory.txt').read_text(errors='replace').splitlines():\n    if line.strip():\n        print('Review component:', line.strip())"
+  },
+  {
+    "id": 207,
+    "title": "Check a Package Against a Known Version Note",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Compare a local inventory entry with a version requirement supplied by your vendor advisory.",
+    "code": "installed='1.2.3'\nfixed='1.2.5'\nprint('Compare versions with a proper version parser before deciding exposure.')"
+  },
+  {
+    "id": 208,
+    "title": "Create a Security Assessment Timeline",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Record assessment milestones in a CSV file.",
+    "code": "import csv\n\nsteps=[('2026-11-11','Scope confirmed'),('2026-11-12','Testing started'),('2026-11-13','Report drafted')]\nwith open('timeline.csv','w',newline='') as f:\n    w=csv.writer(f); w.writerow(['date','milestone']); w.writerows(steps)\nprint('Timeline saved')"
+  },
+  {
+    "id": 209,
+    "title": "Redact Sensitive Evidence Text",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Mask common token and password patterns before attaching evidence to a report.",
+    "code": "import re\n\ndef redact(text):\n    text=re.sub(r'(?i)(password|token|api_key)=\\S+', r'\\1=[REDACTED]', text)\n    text=re.sub(r'(?i)Bearer\\s+[A-Za-z0-9._~+/-]+=*', 'Bearer [REDACTED]', text)\n    return text\nprint(redact('Authorization: Bearer abc123'))"
+  },
+  {
+    "id": 210,
+    "title": "Create a Report Table from Findings",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Render a concise Markdown table for a report.",
+    "code": "findings=[{'id':'LAB-001','title':'Missing header','severity':'Low'}]\nlines=['| ID | Finding | Severity |','|---|---|---|']\nfor x in findings:\n    lines.append(f\"| {x['id']} | {x['title']} | {x['severity']} |\")\nprint('\\n'.join(lines))"
+  },
+  {
+    "id": 211,
+    "title": "Check Website Security Headers and Save Evidence",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Inspect headers on your own local training site and save a sanitized record.",
+    "code": "from urllib.request import urlopen\n\nwith urlopen('http://127.0.0.1:8000/',timeout=3) as r:\n    selected={k:r.headers.get(k,'MISSING') for k in ['Content-Security-Policy','X-Content-Type-Options','X-Frame-Options','Referrer-Policy']}\nopen('headers-evidence.txt','w').write('\\n'.join(f'{k}: {v}' for k,v in selected.items()))\nprint('Evidence saved')"
+  },
+  {
+    "id": 212,
+    "title": "Review Cookie Flags from a Local Response",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Inspect Set-Cookie attributes on your own test app.",
+    "code": "from urllib.request import urlopen\n\nwith urlopen('http://127.0.0.1:8000/',timeout=3) as r:\n    for value in r.headers.get_all('Set-Cookie') or []:\n        print(value)\n        # Check Secure, HttpOnly, SameSite and appropriate expiry."
+  },
+  {
+    "id": 213,
+    "title": "Check for Stack Trace Disclosure",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Review a saved local response for common debug leakage indicators.",
+    "code": "from pathlib import Path\n\nbody=Path('response-body.txt').read_text(errors='replace').lower()\nmarkers=['traceback (most recent call last)','stack trace','debug toolbar','sqlalchemy.exc']\nfor marker in markers:\n    if marker in body:\n        print('Review possible debug disclosure:',marker)"
+  },
+  {
+    "id": 214,
+    "title": "Create a VAPT Cover Page",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Generate a simple cover page for an authorized assessment.",
+    "code": "cover='''# Vulnerability Assessment and Penetration Testing Report\\n\\nClient: [Your lab project]\\nAssessment dates: [Dates]\\nPrepared by: [Your name]\\nVersion: 1.0\\n\\nCONFIDENTIAL – Contains security assessment information.\\n'''\nopen('cover-page.md','w').write(cover)\nprint('Cover page created')"
+  },
+  {
+    "id": 215,
+    "title": "Generate a Finding Severity Summary CSV",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Export counts by severity for a management summary.",
+    "code": "import csv\nfrom collections import Counter\n\nfindings=[{'severity':'High'},{'severity':'Medium'},{'severity':'Medium'},{'severity':'Low'}]\ncounts=Counter(x['severity'] for x in findings)\nwith open('severity-summary.csv','w',newline='') as f:\n    w=csv.writer(f); w.writerow(['severity','count']); w.writerows(counts.items())\nprint('Summary exported')"
+  },
+  {
+    "id": 216,
+    "title": "Create a Retest Checklist",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Prepare repeatable steps to verify a fix in your own lab.",
+    "code": "steps=['Repeat original request','Confirm unauthorized access is denied','Confirm authorized access still works','Check logs for expected event','Save sanitized evidence','Update finding status']\nfor step in steps: print('[ ]',step)"
+  },
+  {
+    "id": 217,
+    "title": "Create a Scope Change Log",
+    "category": "Reporting",
+    "level": "Intermediate",
+    "description": "Record approved additions or removals from an assessment scope.",
+    "code": "import json, datetime\n\nentry={'time':datetime.datetime.now(datetime.timezone.utc).isoformat(),'change':'Added local API test route','approved_by':'Lab owner'}\nwith open('scope-changes.jsonl','a') as f: f.write(json.dumps(entry)+'\\n')\nprint('Scope change recorded')"
+  },
+  {
+    "id": 218,
+    "title": "Validate Report JSON Before Delivery",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Check that the report file parses and has expected top-level fields.",
+    "code": "import json\n\nwith open('findings.json') as f:\n    data=json.load(f)\nassert isinstance(data,list), 'Findings must be a list'\nprint('Report data valid; finding count:',len(data))"
+  },
+  {
+    "id": 219,
+    "title": "Create a Professional Assessment Checklist",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Use this checklist before, during and after an authorized VAPT.",
+    "code": "sections={'Before':['Written authorization','Scope and exclusions','Test window and contacts'],'During':['Use approved test accounts','Avoid destructive tests','Sanitize evidence'],'After':['Remove temporary test data','Report findings and impact','Provide remediation','Retest fixes']}\nfor section, tasks in sections.items():\n    print('\\n'+section)\n    for task in tasks: print('[ ]',task)"
+  }
+]
