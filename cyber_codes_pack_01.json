@@ -1,0 +1,242 @@
+[
+  {
+    "id": 1,
+    "title": "SHA-256 File Hash",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Calculate a SHA-256 checksum for a local file.",
+    "code": "import hashlib\n\npath = 'sample.txt'\nh = hashlib.sha256()\nwith open(path, 'rb') as f:\n    for chunk in iter(lambda: f.read(4096), b''):\n        h.update(chunk)\nprint(h.hexdigest())"
+  },
+  {
+    "id": 2,
+    "title": "Password Strength Checker",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Check basic password characteristics locally; this does not test a login.",
+    "code": "import re\n\npassword = input('Test password: ')\nchecks = {\n    '12+ characters': len(password) >= 12,\n    'Uppercase': bool(re.search(r'[A-Z]', password)),\n    'Lowercase': bool(re.search(r'[a-z]', password)),\n    'Number': bool(re.search(r'[0-9]', password)),\n    'Symbol': bool(re.search(r'[^A-Za-z0-9]', password)),\n}\nfor name, ok in checks.items():\n    print(f'{name}: {\"PASS\" if ok else \"FAIL\"}')"
+  },
+  {
+    "id": 3,
+    "title": "Generate a Secure Test Password",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Generate a random password for your own test accounts.",
+    "code": "import secrets\nimport string\n\nalphabet = string.ascii_letters + string.digits + '!@#$%^&*()-_+'\npassword = ''.join(secrets.choice(alphabet) for _ in range(20))\nprint(password)"
+  },
+  {
+    "id": 4,
+    "title": "DNS Lookup",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Resolve a domain name to an IP address for basic networking study.",
+    "code": "import socket\n\nhost = 'example.com'\ntry:\n    print(host, '->', socket.gethostbyname(host))\nexcept socket.gaierror as exc:\n    print('DNS lookup failed:', exc)"
+  },
+  {
+    "id": 5,
+    "title": "Check a TCP Port on Localhost",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Check one port on your own device only.",
+    "code": "import socket\n\nhost, port = '127.0.0.1', 8000\nwith socket.socket() as sock:\n    sock.settimeout(2)\n    result = sock.connect_ex((host, port))\nprint('Open' if result == 0 else 'Closed or filtered')"
+  },
+  {
+    "id": 6,
+    "title": "Show Local IP Configuration",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Display network interface information on Linux or Termux where supported.",
+    "code": "# Linux / Termux\nip addr\nip route\n"
+  },
+  {
+    "id": 7,
+    "title": "Linux System Snapshot",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "View kernel, user, disk and memory information.",
+    "code": "uname -a\nwhoami\npwd\ndf -h\nfree -h"
+  },
+  {
+    "id": 8,
+    "title": "Find Large Files in a Folder",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "List the 20 largest files under a folder you own.",
+    "code": "du -ah \"$HOME\" 2>/dev/null | sort -h | tail -n 20"
+  },
+  {
+    "id": 9,
+    "title": "List Listening Services",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "Inspect listening sockets on your own Linux machine.",
+    "code": "ss -tuln"
+  },
+  {
+    "id": 10,
+    "title": "Inspect HTTP Response Headers",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Inspect headers on localhost or a website you are authorized to assess.",
+    "code": "import requests\n\nurl = 'http://127.0.0.1:8000'\nr = requests.get(url, timeout=5)\nfor name in ['Content-Security-Policy', 'X-Content-Type-Options',\n             'X-Frame-Options', 'Strict-Transport-Security']:\n    print(f'{name}: {r.headers.get(name, \"MISSING\")}')"
+  },
+  {
+    "id": 11,
+    "title": "Check TLS Certificate Expiry",
+    "category": "Networking",
+    "level": "Intermediate",
+    "description": "Read the TLS certificate for a host you own or are authorized to inspect.",
+    "code": "import socket, ssl\nfrom datetime import datetime, timezone\n\nhost = 'example.com'\nctx = ssl.create_default_context()\nwith socket.create_connection((host, 443), timeout=5) as raw:\n    with ctx.wrap_socket(raw, server_hostname=host) as tls:\n        cert = tls.getpeercert()\nexpiry = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z').replace(tzinfo=timezone.utc)\nprint('Certificate expires:', expiry)\nprint('Days remaining:', (expiry - datetime.now(timezone.utc)).days)"
+  },
+  {
+    "id": 12,
+    "title": "Create a File Integrity Manifest",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Hash files in a folder to help detect unexpected changes.",
+    "code": "from pathlib import Path\nimport hashlib\n\nroot = Path('test-folder')\nfor path in sorted(root.rglob('*')):\n    if path.is_file():\n        digest = hashlib.sha256(path.read_bytes()).hexdigest()\n        print(digest, path)"
+  },
+  {
+    "id": 13,
+    "title": "Verify a File Against Its SHA-256",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Compare a downloaded file with a trusted checksum supplied by its publisher.",
+    "code": "import hashlib\nfrom pathlib import Path\n\nfile_path = Path('download.zip')\nexpected = 'PASTE_TRUSTED_SHA256_HERE'.lower()\nactual = hashlib.sha256(file_path.read_bytes()).hexdigest()\nprint('MATCH' if actual == expected else 'MISMATCH')"
+  },
+  {
+    "id": 14,
+    "title": "Safe SQLite Parameterized Query",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Use placeholders rather than string concatenation to prevent SQL injection.",
+    "code": "import sqlite3\n\nconn = sqlite3.connect(':memory:')\nconn.execute('CREATE TABLE users (username TEXT)')\nconn.execute('INSERT INTO users VALUES (?)', ('alice',))\nname = input('Username to find: ')\nrow = conn.execute('SELECT username FROM users WHERE username = ?', (name,)).fetchone()\nprint(row)\nconn.close()"
+  },
+  {
+    "id": 15,
+    "title": "Hash a Password with PBKDF2",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Demonstrate salted password hashing for learning; use Argon2id or scrypt in production where available.",
+    "code": "import os, hashlib, base64\n\npassword = 'Example-Only-Password!'\nsalt = os.urandom(16)\ndk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 600_000)\nprint('salt:', base64.b64encode(salt).decode())\nprint('hash:', base64.b64encode(dk).decode())"
+  },
+  {
+    "id": 16,
+    "title": "Verify a PBKDF2 Password",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Verify a password against a previously stored salt and derived hash.",
+    "code": "import hashlib, hmac\n\ndef verify_password(candidate, salt, expected_hash):\n    actual = hashlib.pbkdf2_hmac('sha256', candidate.encode(), salt, 600_000)\n    return hmac.compare_digest(actual, expected_hash)\n\n# Use the salt and hash stored at registration time."
+  },
+  {
+    "id": 17,
+    "title": "Parse a Web Server Access Log",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Count HTTP status codes in a local log file.",
+    "code": "from collections import Counter\n\ncounts = Counter()\nwith open('access.log', encoding='utf-8', errors='replace') as f:\n    for line in f:\n        parts = line.split()\n        if len(parts) > 8 and parts[8].isdigit():\n            counts[parts[8]] += 1\nprint(counts)"
+  },
+  {
+    "id": 18,
+    "title": "Find Failed Login Events in a Log",
+    "category": "Python",
+    "level": "Intermediate",
+    "description": "Search your own application log for failed-login messages.",
+    "code": "from pathlib import Path\n\nlog = Path('app.log')\nfor number, line in enumerate(log.read_text(errors='replace').splitlines(), 1):\n    if 'login failed' in line.lower() or 'authentication failed' in line.lower():\n        print(number, line)"
+  },
+  {
+    "id": 19,
+    "title": "Validate an IPv4 Address",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Validate and normalize an IPv4 address using Python.",
+    "code": "import ipaddress\n\nvalue = input('IPv4 address: ')\ntry:\n    address = ipaddress.ip_address(value)\n    print(address, 'private=', address.is_private)\nexcept ValueError:\n    print('Invalid IP address')"
+  },
+  {
+    "id": 20,
+    "title": "Calculate a Subnet Network",
+    "category": "Networking",
+    "level": "Beginner",
+    "description": "Learn network address, broadcast address and usable host count.",
+    "code": "import ipaddress\n\nnet = ipaddress.ip_network('192.168.1.10/24', strict=False)\nprint('Network:', net.network_address)\nprint('Broadcast:', net.broadcast_address)\nprint('Prefix:', net.prefixlen)\nprint('Usable hosts:', max(net.num_addresses - 2, 0))"
+  },
+  {
+    "id": 21,
+    "title": "Inspect Cookies Safely",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Print cookie security attributes returned by your own local test application.",
+    "code": "import requests\n\nr = requests.get('http://127.0.0.1:8000', timeout=5)\nfor cookie in r.cookies:\n    print('name:', cookie.name)\n    print('secure:', cookie.secure)\n    print('HttpOnly/SameSite should also be reviewed in Set-Cookie response headers.')\nprint('Set-Cookie:', r.headers.get('Set-Cookie', 'No Set-Cookie header'))"
+  },
+  {
+    "id": 22,
+    "title": "Escape HTML Output",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Safely encode untrusted text before inserting it into HTML.",
+    "code": "import html\n\nuser_input = '<script>alert(1)</script>'\nsafe_output = html.escape(user_input)\nprint(safe_output)"
+  },
+  {
+    "id": 23,
+    "title": "Generate a Content Security Policy Example",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Example restrictive CSP header; adapt and test before deploying.",
+    "code": "# Example HTTP response header\nContent-Security-Policy: default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+  },
+  {
+    "id": 24,
+    "title": "Check File Extension Allowlist",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "A basic defensive allowlist check. Production upload handling also needs content inspection, size limits and safe storage.",
+    "code": "from pathlib import Path\n\nallowed = {'.png', '.jpg', '.jpeg', '.pdf'}\nfilename = input('Filename: ')\next = Path(filename).suffix.lower()\nprint('Allowed extension' if ext in allowed else 'Rejected extension')"
+  },
+  {
+    "id": 25,
+    "title": "Create a Local HTTP Test Server",
+    "category": "Python",
+    "level": "Beginner",
+    "description": "Start a simple server bound only to localhost for local exercises.",
+    "code": "from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler\n\nserver = ThreadingHTTPServer(('127.0.0.1', 8000), SimpleHTTPRequestHandler)\nprint('Local test server: http://127.0.0.1:8000')\nserver.serve_forever()"
+  },
+  {
+    "id": 26,
+    "title": "Inspect HTTP Status and Timing",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Measure a single request to your own local test application.",
+    "code": "import time, requests\n\nurl = 'http://127.0.0.1:8000'\nstart = time.perf_counter()\nr = requests.get(url, timeout=5)\nelapsed = time.perf_counter() - start\nprint('Status:', r.status_code)\nprint('Seconds:', round(elapsed, 3))"
+  },
+  {
+    "id": 27,
+    "title": "Secure Random Token",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Generate a cryptographically secure token for a local application demo.",
+    "code": "import secrets\n\ntoken = secrets.token_urlsafe(32)\nprint(token)"
+  },
+  {
+    "id": 28,
+    "title": "Check Python Package Versions",
+    "category": "Linux",
+    "level": "Beginner",
+    "description": "List installed Python packages so you can review and update dependencies.",
+    "code": "import importlib.metadata\n\nfor package in sorted(importlib.metadata.distributions(), key=lambda p: (p.metadata.get('Name') or '').lower()):\n    print(package.metadata.get('Name'), package.version)"
+  },
+  {
+    "id": 29,
+    "title": "Simple JSON API Input Validation",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Validate expected JSON fields and types before processing API input.",
+    "code": "def validate_user_payload(data):\n    if not isinstance(data, dict):\n        return False\n    username = data.get('username')\n    age = data.get('age')\n    return (isinstance(username, str) and 1 <= len(username) <= 30\n            and isinstance(age, int) and not isinstance(age, bool)\n            and 0 <= age <= 120)\n\nprint(validate_user_payload({'username': 'alice', 'age': 25}))"
+  },
+  {
+    "id": 30,
+    "title": "Basic Security Checklist",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "A quick manual checklist for your own website before deployment.",
+    "code": "checks = [\n    'HTTPS enabled',\n    'Admin accounts use MFA',\n    'Passwords stored with a modern password hash',\n    'Parameterized database queries used',\n    'User output encoded before HTML rendering',\n    'Uploads restricted and stored outside web root',\n    'Dependencies updated',\n    'Backups tested',\n    'Logs monitored',\n]\nfor item in checks:\n    print('[ ]', item)"
+  }
+]
