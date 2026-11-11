@@ -1,0 +1,10 @@
+[
+  {
+    "id": 300,
+    "title": "Run a local security self-check",
+    "category": "Security Automation",
+    "level": "Beginner",
+    "description": "Run a small defensive checklist against your own Cyber Lab Pro workspace and print the results.",
+    "code": "from pathlib import Path\nimport os\n\nchecks = {\n    \"Lab folder exists\": (Path.home() / \"cyber-lab\").is_dir(),\n    \"No hard-coded demo secret in this script\": \"PASTE_REAL_API_KEY\" not in Path(__file__).read_text(errors=\"ignore\") if \"__file__\" in globals() else True,\n    \"Python is running\": True,\n}\n\nprint(\"CYBER LAB PRO — LOCAL SELF-CHECK\")\nfor name, passed in checks.items():\n    print(f\"[{'PASS' if passed else 'REVIEW'}] {name}\")\n\nprint(\"\\nThis is a basic learning checklist, not a full security audit.\")\n"
+  }
+]

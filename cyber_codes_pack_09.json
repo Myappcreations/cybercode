@@ -1,0 +1,258 @@
+[
+  {
+    "id": 252,
+    "title": "Understand the OWASP Top 10 categories",
+    "category": "OWASP",
+    "level": "Beginner",
+    "description": "Print a quick study list of common web application risk categories.",
+    "code": "topics = [\n    \"Broken Access Control\",\n    \"Cryptographic Failures\",\n    \"Injection\",\n    \"Insecure Design\",\n    \"Security Misconfiguration\",\n    \"Vulnerable and Outdated Components\",\n    \"Identification and Authentication Failures\",\n    \"Software and Data Integrity Failures\",\n    \"Security Logging and Monitoring Failures\",\n    \"Server-Side Request Forgery (SSRF)\",\n]\nfor number, topic in enumerate(topics, 1):\n    print(f\"{number}. {topic}\")"
+  },
+  {
+    "id": 253,
+    "title": "Validate an integer input safely",
+    "category": "Input Validation",
+    "level": "Beginner",
+    "description": "Reject malformed values and enforce a sensible range before using user input.",
+    "code": "def parse_quantity(value):\n    try:\n        quantity = int(value)\n    except (TypeError, ValueError):\n        raise ValueError(\"Quantity must be a whole number\")\n    if not 1 <= quantity <= 100:\n        raise ValueError(\"Quantity must be between 1 and 100\")\n    return quantity\n\nprint(parse_quantity(\"5\"))"
+  },
+  {
+    "id": 254,
+    "title": "Allowlist a username format",
+    "category": "Input Validation",
+    "level": "Beginner",
+    "description": "Validate a simple username format with a strict allowlist.",
+    "code": "import re\ndef valid_username(value):\n    return bool(re.fullmatch(r\"[A-Za-z][A-Za-z0-9_]{2,19}\", value))\n\nfor name in [\"ram_01\", \"admin!\", \"ab\"]:\n    print(name, valid_username(name))"
+  },
+  {
+    "id": 255,
+    "title": "Prevent path traversal in a file viewer",
+    "category": "Access Control",
+    "level": "Intermediate",
+    "description": "Resolve a requested filename and ensure it stays inside an approved folder.",
+    "code": "from pathlib import Path\nBASE = Path(\"user-files\").resolve()\ndef safe_file(name):\n    candidate = (BASE / name).resolve()\n    if candidate != BASE and BASE not in candidate.parents:\n        raise ValueError(\"Path is outside the permitted folder\")\n    return candidate\n\nprint(safe_file(\"notes.txt\"))"
+  },
+  {
+    "id": 256,
+    "title": "Use parameterized SQLite queries",
+    "category": "Injection Prevention",
+    "level": "Beginner",
+    "description": "Use placeholders rather than string concatenation for SQL values.",
+    "code": "import sqlite3\ndb = sqlite3.connect(\":memory:\")\ndb.execute(\"CREATE TABLE users (username TEXT)\")\ndb.execute(\"INSERT INTO users VALUES (?)\", (\"ram\",))\nrequested = \"ram' OR '1'='1\"\nrows = db.execute(\n    \"SELECT username FROM users WHERE username = ?\",\n    (requested,)\n).fetchall()\nprint(rows)  # No SQL syntax is injected"
+  },
+  {
+    "id": 257,
+    "title": "Escape untrusted text for HTML output",
+    "category": "XSS Prevention",
+    "level": "Beginner",
+    "description": "Encode untrusted text before inserting it into an HTML page.",
+    "code": "import html\nuser_text = '<script>alert(\"test\")</script>'\nsafe_text = html.escape(user_text)\nprint(safe_text)"
+  },
+  {
+    "id": 258,
+    "title": "Set basic browser security headers",
+    "category": "Security Headers",
+    "level": "Intermediate",
+    "description": "Example response headers for a small application; adapt CSP to your real assets.",
+    "code": "SECURITY_HEADERS = {\n    \"Content-Security-Policy\": \"default-src 'self'; object-src 'none'; base-uri 'self'\",\n    \"X-Content-Type-Options\": \"nosniff\",\n    \"Referrer-Policy\": \"strict-origin-when-cross-origin\",\n    \"X-Frame-Options\": \"DENY\",\n    \"Permissions-Policy\": \"camera=(), microphone=(), geolocation=()\",\n}\nfor key, value in SECURITY_HEADERS.items():\n    print(f\"{key}: {value}\")"
+  },
+  {
+    "id": 259,
+    "title": "Configure secure session cookie attributes",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Use secure cookie attributes in production over HTTPS.",
+    "code": "# Flask example\nfrom flask import Flask\napp = Flask(__name__)\napp.config.update(\n    SESSION_COOKIE_HTTPONLY=True,\n    SESSION_COOKIE_SECURE=True,   # HTTPS only\n    SESSION_COOKIE_SAMESITE=\"Lax\"\n)"
+  },
+  {
+    "id": 260,
+    "title": "Generate a CSRF token",
+    "category": "CSRF Prevention",
+    "level": "Intermediate",
+    "description": "Create a random per-session token; use a framework's built-in CSRF protection in production.",
+    "code": "import secrets\ncsrf_token = secrets.token_urlsafe(32)\nprint(\"CSRF token generated; keep it associated with the user's session\")"
+  },
+  {
+    "id": 261,
+    "title": "Compare CSRF tokens safely",
+    "category": "CSRF Prevention",
+    "level": "Intermediate",
+    "description": "Use constant-time comparison when validating a submitted CSRF token.",
+    "code": "import secrets\ndef valid_csrf(session_token, submitted_token):\n    if not session_token or not submitted_token:\n        return False\n    return secrets.compare_digest(session_token, submitted_token)\n\nprint(valid_csrf(\"abc123\", \"abc123\"))"
+  },
+  {
+    "id": 262,
+    "title": "Check authorization before returning a record",
+    "category": "Access Control",
+    "level": "Intermediate",
+    "description": "Verify that the authenticated user owns the requested record.",
+    "code": "def get_private_record(record, current_user_id):\n    if record[\"owner_id\"] != current_user_id:\n        raise PermissionError(\"Access denied\")\n    return record\n\nrecord = {\"id\": 7, \"owner_id\": 42, \"note\": \"Private\"}\nprint(get_private_record(record, 42))"
+  },
+  {
+    "id": 263,
+    "title": "Test role permissions with a simple policy",
+    "category": "Access Control",
+    "level": "Intermediate",
+    "description": "Centralize role checks rather than scattering authorization logic.",
+    "code": "POLICY = {\n    \"viewer\": {\"read\"},\n    \"editor\": {\"read\", \"write\"},\n    \"admin\": {\"read\", \"write\", \"delete\"},\n}\ndef allowed(role, action):\n    return action in POLICY.get(role, set())\n\nprint(allowed(\"viewer\", \"delete\"))\nprint(allowed(\"editor\", \"write\"))"
+  },
+  {
+    "id": 264,
+    "title": "Prevent mass assignment with an allowlist",
+    "category": "Access Control",
+    "level": "Intermediate",
+    "description": "Only copy fields that a user is allowed to update.",
+    "code": "ALLOWED_PROFILE_FIELDS = {\"display_name\", \"bio\"}\ndef update_profile(existing, submitted):\n    updated = existing.copy()\n    for key in ALLOWED_PROFILE_FIELDS:\n        if key in submitted:\n            updated[key] = submitted[key]\n    return updated\n\nprint(update_profile({\"role\": \"user\"}, {\"display_name\": \"Ram\", \"role\": \"admin\"}))"
+  },
+  {
+    "id": 265,
+    "title": "Validate uploaded file extension and size",
+    "category": "File Upload Security",
+    "level": "Beginner",
+    "description": "Use an extension allowlist and size cap; also inspect file content and store uploads outside the web root.",
+    "code": "from pathlib import Path\nALLOWED = {\".png\", \".jpg\", \".jpeg\", \".pdf\"}\nMAX_BYTES = 5 * 1024 * 1024\ndef validate_upload(filename, size):\n    suffix = Path(filename).suffix.lower()\n    if suffix not in ALLOWED:\n        raise ValueError(\"File type not allowed\")\n    if size > MAX_BYTES:\n        raise ValueError(\"File too large\")\n    return True\n\nprint(validate_upload(\"photo.png\", 1200))"
+  },
+  {
+    "id": 266,
+    "title": "Create a safe server-side upload filename",
+    "category": "File Upload Security",
+    "level": "Intermediate",
+    "description": "Generate a random storage name instead of trusting a user-supplied filename.",
+    "code": "import secrets\nfrom pathlib import Path\ndef safe_upload_name(original_name):\n    suffix = Path(original_name).suffix.lower()\n    if suffix not in {\".png\", \".jpg\", \".pdf\"}:\n        raise ValueError(\"Unsupported file type\")\n    return secrets.token_hex(16) + suffix\n\nprint(safe_upload_name(\"my-photo.png\"))"
+  },
+  {
+    "id": 267,
+    "title": "Avoid exposing detailed error messages",
+    "category": "Security Configuration",
+    "level": "Beginner",
+    "description": "Return a generic client message while recording technical details in private logs.",
+    "code": "import logging\nlogging.basicConfig(level=logging.ERROR)\ndef handle_error(error):\n    logging.exception(\"Application operation failed\")\n    return {\"error\": \"Something went wrong. Please try again.\"}\n\ntry:\n    1 / 0\nexcept Exception as exc:\n    print(handle_error(exc))"
+  },
+  {
+    "id": 268,
+    "title": "Use environment variables for application secrets",
+    "category": "Secrets Management",
+    "level": "Beginner",
+    "description": "Read secrets from environment variables and fail closed if missing.",
+    "code": "import os\nsecret = os.getenv(\"APP_SECRET\")\nif not secret:\n    raise RuntimeError(\"APP_SECRET is not configured\")\nprint(\"Application secret is configured; value not displayed\")"
+  },
+  {
+    "id": 269,
+    "title": "Check password length and block common passwords",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Apply a minimum length and reject a small illustrative denylist; use a maintained breached-password service in production.",
+    "code": "COMMON = {\"password\", \"12345678\", \"qwerty123\"}\ndef password_policy(value):\n    if len(value) < 12:\n        return False, \"Use at least 12 characters\"\n    if value.lower() in COMMON:\n        return False, \"Choose a less common password\"\n    return True, \"Length and basic denylist checks passed\"\n\nprint(password_policy(\"correct-horse-battery\"))"
+  },
+  {
+    "id": 270,
+    "title": "Hash a password with scrypt",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Use a password-hashing function rather than a fast general-purpose hash.",
+    "code": "import os, hashlib\npassword = b\"example-only-password\"\nsalt = os.urandom(16)\ndigest = hashlib.scrypt(password, salt=salt, n=2**14, r=8, p=1)\nprint(\"salt:\", salt.hex())\nprint(\"hash:\", digest.hex())"
+  },
+  {
+    "id": 271,
+    "title": "Verify a scrypt password hash",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Recompute the hash using the stored salt and compare in constant time.",
+    "code": "import hashlib, hmac\ndef verify_scrypt(password, salt, expected):\n    actual = hashlib.scrypt(password, salt=salt, n=2**14, r=8, p=1)\n    return hmac.compare_digest(actual, expected)\n\nsalt = b\"0123456789abcdef\"\nsaved = hashlib.scrypt(b\"demo-password\", salt=salt, n=2**14, r=8, p=1)\nprint(verify_scrypt(b\"demo-password\", salt, saved))"
+  },
+  {
+    "id": 272,
+    "title": "Apply login rate limiting in a toy example",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Demonstrate a per-account attempt counter; use a shared store and careful lockout policy in production.",
+    "code": "from collections import defaultdict\nattempts = defaultdict(int)\nMAX_ATTEMPTS = 5\ndef allow_login_attempt(account):\n    attempts[account] += 1\n    return attempts[account] <= MAX_ATTEMPTS\n\nfor _ in range(6):\n    print(allow_login_attempt(\"demo-user\"))"
+  },
+  {
+    "id": 273,
+    "title": "Create a simple audit event",
+    "category": "Logging",
+    "level": "Beginner",
+    "description": "Record security-relevant events without storing passwords, tokens, or other secrets.",
+    "code": "import logging\nlogging.basicConfig(\n    filename=\"security-audit.log\",\n    level=logging.INFO,\n    format=\"%(asctime)s %(levelname)s %(message)s\"\n)\nlogging.info(\"event=login_success account_id=%s\", \"user-42\")\nlogging.warning(\"event=permission_denied account_id=%s resource=%s\", \"user-42\", \"invoice-9\")"
+  },
+  {
+    "id": 274,
+    "title": "Add request correlation IDs",
+    "category": "Logging",
+    "level": "Intermediate",
+    "description": "Attach a random request ID so related events can be traced without logging credentials.",
+    "code": "import secrets\ndef new_request_id():\n    return secrets.token_hex(8)\n\nrequest_id = new_request_id()\nprint(\"request_id:\", request_id)"
+  },
+  {
+    "id": 275,
+    "title": "Check dependency versions against a lock file",
+    "category": "Supply Chain",
+    "level": "Intermediate",
+    "description": "Use reproducible pinned dependencies and review changes before deployment.",
+    "code": "# Example requirements.txt entries:\n# flask==3.1.0\n# requests==2.32.3\n#\n# Install the reviewed pinned set:\npython -m pip install -r requirements.txt"
+  },
+  {
+    "id": 276,
+    "title": "Run a local OWASP ZAP baseline scan",
+    "category": "OWASP Testing",
+    "level": "Intermediate",
+    "description": "Run only against your own local practice app. The baseline scan is passive by default.",
+    "code": "# Start your own app on localhost first.\n# Then run ZAP baseline from a trusted installation:\ndocker run --rm -t -v \"$PWD:/zap/wrk:rw\"   ghcr.io/zaproxy/zaproxy:stable zap-baseline.py   -t http://host.docker.internal:8000   -r zap-report.html\n# Review findings; do not scan systems without written permission."
+  },
+  {
+    "id": 277,
+    "title": "Run a local web app security test with pytest",
+    "category": "OWASP Testing",
+    "level": "Beginner",
+    "description": "Write a small regression test for an authorization rule in your own app.",
+    "code": "# test_access.py\ndef can_view(owner_id, current_user_id):\n    return owner_id == current_user_id\n\ndef test_owner_can_view():\n    assert can_view(7, 7)\n\ndef test_other_user_cannot_view():\n    assert not can_view(7, 8)\n\n# Run: python -m pytest -q"
+  },
+  {
+    "id": 278,
+    "title": "Check an API response for sensitive fields",
+    "category": "API Security",
+    "level": "Intermediate",
+    "description": "Inspect a sample response object and flag fields that should not be exposed publicly.",
+    "code": "SENSITIVE_KEYS = {\"password\", \"password_hash\", \"api_key\", \"session_token\"}\ndef find_sensitive_fields(payload, path=\"\"):\n    findings = []\n    if isinstance(payload, dict):\n        for key, value in payload.items():\n            current = f\"{path}.{key}\" if path else key\n            if key.lower() in SENSITIVE_KEYS:\n                findings.append(current)\n            findings.extend(find_sensitive_fields(value, current))\n    elif isinstance(payload, list):\n        for index, value in enumerate(payload):\n            findings.extend(find_sensitive_fields(value, f\"{path}[{index}]\"))\n    return findings\n\nsample = {\"user\": {\"name\": \"Ram\", \"password_hash\": \"***\"}}\nprint(find_sensitive_fields(sample))"
+  },
+  {
+    "id": 279,
+    "title": "Validate a redirect destination",
+    "category": "Access Control",
+    "level": "Intermediate",
+    "description": "Allow only relative paths to avoid sending users to arbitrary external destinations.",
+    "code": "from urllib.parse import urlparse\ndef safe_redirect(target):\n    parsed = urlparse(target)\n    if parsed.scheme or parsed.netloc or not target.startswith(\"/\") or target.startswith(\"//\"):\n        raise ValueError(\"Redirect destination not allowed\")\n    return target\n\nprint(safe_redirect(\"/dashboard\"))"
+  },
+  {
+    "id": 280,
+    "title": "Set response content type explicitly",
+    "category": "Security Headers",
+    "level": "Beginner",
+    "description": "Use an explicit content type and avoid serving user uploads as active HTML.",
+    "code": "def response_headers():\n    return {\n        \"Content-Type\": \"application/json; charset=utf-8\",\n        \"X-Content-Type-Options\": \"nosniff\",\n    }\n\nprint(response_headers())"
+  },
+  {
+    "id": 281,
+    "title": "Create a vulnerability finding record",
+    "category": "Security Reporting",
+    "level": "Beginner",
+    "description": "Keep findings structured with impact, evidence, scope, and remediation.",
+    "code": "finding = {\n    \"title\": \"Missing authorization check\",\n    \"asset\": \"http://127.0.0.1:8000/profile/42\",\n    \"severity\": \"High\",\n    \"evidence\": \"Test account B could access account A's test record\",\n    \"impact\": \"Potential exposure of another user's private data\",\n    \"remediation\": \"Enforce server-side object ownership checks\",\n    \"status\": \"Open\"\n}\nfor key, value in finding.items():\n    print(f\"{key}: {value}\")"
+  },
+  {
+    "id": 282,
+    "title": "Create a retest checklist",
+    "category": "Security Reporting",
+    "level": "Beginner",
+    "description": "Track whether a fix resolves the issue and whether normal behavior still works.",
+    "code": "retest = [\n    \"Reproduce the original issue in the authorized lab\",\n    \"Apply the documented fix\",\n    \"Repeat the original test\",\n    \"Confirm unauthorized access is denied\",\n    \"Confirm the legitimate user still has access\",\n    \"Capture fresh evidence\",\n    \"Update finding status and date\",\n]\nfor item in retest:\n    print(\"[ ]\", item)"
+  },
+  {
+    "id": 283,
+    "title": "Define a local-only test scope guard",
+    "category": "OWASP Testing",
+    "level": "Intermediate",
+    "description": "Refuse test targets that are not explicitly local loopback addresses.",
+    "code": "import ipaddress\ndef is_local_lab_target(host):\n    try:\n        address = ipaddress.ip_address(host)\n        return address.is_loopback\n    except ValueError:\n        return host.lower() == \"localhost\"\n\nfor host in [\"127.0.0.1\", \"::1\", \"localhost\", \"example.com\"]:\n    print(host, is_local_lab_target(host))"
+  }
+]

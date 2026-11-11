@@ -1,0 +1,130 @@
+[
+  {
+    "id": 284,
+    "title": "Create a SHA-256 inventory for a folder",
+    "category": "File Integrity",
+    "level": "Intermediate",
+    "description": "Hash regular files in your own lab folder and save a baseline manifest.",
+    "code": "from pathlib import Path\nimport hashlib, json\nroot = Path.home() / \"cyber-lab\"\nmanifest = {}\nfor path in root.rglob(\"*\"):\n    if path.is_file():\n        try:\n            manifest[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()\n        except OSError:\n            continue\nPath(\"integrity-baseline.json\").write_text(json.dumps(manifest, indent=2))\nprint(f\"Recorded {len(manifest)} files\")"
+  },
+  {
+    "id": 285,
+    "title": "Compare a folder against its SHA-256 baseline",
+    "category": "File Integrity",
+    "level": "Intermediate",
+    "description": "Detect new, missing, or changed files relative to a previously created baseline.",
+    "code": "from pathlib import Path\nimport hashlib, json\nroot = Path.home() / \"cyber-lab\"\nbaseline = json.loads(Path(\"integrity-baseline.json\").read_text())\ncurrent = {}\nfor path in root.rglob(\"*\"):\n    if path.is_file():\n        try:\n            current[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()\n        except OSError:\n            pass\nfor name in sorted(set(baseline) | set(current)):\n    if name not in baseline:\n        print(\"NEW:\", name)\n    elif name not in current:\n        print(\"MISSING:\", name)\n    elif baseline[name] != current[name]:\n        print(\"CHANGED:\", name)\n"
+  },
+  {
+    "id": 286,
+    "title": "Monitor a log file for new lines",
+    "category": "Log Monitoring",
+    "level": "Intermediate",
+    "description": "Follow a log file you are authorized to monitor and print appended lines.",
+    "code": "from pathlib import Path\nimport time\nlog = Path(\"app.log\")\nprint(\"Waiting for new log entries...\")\nwith log.open(\"r\", errors=\"replace\") as handle:\n    handle.seek(0, 2)\n    while True:\n        line = handle.readline()\n        if line:\n            print(line, end=\"\")\n        else:\n            time.sleep(1)"
+  },
+  {
+    "id": 287,
+    "title": "Alert on repeated failed logins in a sample file",
+    "category": "Log Monitoring",
+    "level": "Intermediate",
+    "description": "Count repeated authentication failures in an authorized log excerpt.",
+    "code": "from pathlib import Path\nfrom collections import Counter\nimport re\ntext = Path(\"auth.log\").read_text(errors=\"replace\")\ncounts = Counter(re.findall(r\"failed login for user=([A-Za-z0-9_.-]+)\", text, re.I))\nfor account, total in counts.items():\n    if total >= 5:\n        print(f\"REVIEW: {account} has {total} failed login events\")"
+  },
+  {
+    "id": 288,
+    "title": "Summarize log severity levels",
+    "category": "Log Monitoring",
+    "level": "Beginner",
+    "description": "Count common severity labels to help triage application logs.",
+    "code": "from pathlib import Path\nfrom collections import Counter\ntext = Path(\"app.log\").read_text(errors=\"replace\").upper()\ncounts = Counter()\nfor line in text.splitlines():\n    for level in (\"CRITICAL\", \"ERROR\", \"WARNING\", \"INFO\", \"DEBUG\"):\n        if level in line:\n            counts[level] += 1\n            break\nfor level, total in counts.most_common():\n    print(f\"{level}: {total}\")"
+  },
+  {
+    "id": 289,
+    "title": "Generate a timestamped security event",
+    "category": "Security Automation",
+    "level": "Beginner",
+    "description": "Create a structured event record without including passwords or secrets.",
+    "code": "from datetime import datetime, timezone\nimport json\nevent = {\n    \"timestamp\": datetime.now(timezone.utc).isoformat(),\n    \"event\": \"lab_check_completed\",\n    \"asset\": \"localhost\",\n    \"result\": \"success\"\n}\nprint(json.dumps(event, indent=2))"
+  },
+  {
+    "id": 290,
+    "title": "Write JSON Lines security events",
+    "category": "Security Automation",
+    "level": "Beginner",
+    "description": "Append structured events to a local JSONL file for later analysis.",
+    "code": "import json\nfrom datetime import datetime, timezone\nevent = {\n    \"time\": datetime.now(timezone.utc).isoformat(),\n    \"event\": \"permission_check\",\n    \"target\": \"cyber-lab\",\n    \"status\": \"reviewed\"\n}\nwith open(\"security-events.jsonl\", \"a\", encoding=\"utf-8\") as file:\n    file.write(json.dumps(event) + \"\\n\")\nprint(\"Event appended\")"
+  },
+  {
+    "id": 291,
+    "title": "Create a simple security summary report",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Build a short text report from findings collected during your own lab checks.",
+    "code": "from datetime import datetime, timezone\nfindings = [\n    {\"name\": \"Missing security header\", \"severity\": \"Medium\"},\n    {\"name\": \"Debug mode enabled\", \"severity\": \"High\"},\n]\nlines = [\n    \"CYBER LAB PRO — SECURITY SUMMARY\",\n    f\"Generated: {datetime.now(timezone.utc).isoformat()}\",\n    f\"Total findings: {len(findings)}\",\n]\nfor item in findings:\n    lines.append(f\"- {item['severity']}: {item['name']}\")\nopen(\"security-summary.txt\", \"w\", encoding=\"utf-8\").write(\"\\n\".join(lines))\nprint(\"Report saved: security-summary.txt\")"
+  },
+  {
+    "id": 292,
+    "title": "Export findings to CSV",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Save lab findings in CSV format for tracking and review.",
+    "code": "import csv\nfindings = [\n    {\"id\": \"CLP-001\", \"title\": \"Missing CSP\", \"severity\": \"Medium\", \"status\": \"Open\"},\n    {\"id\": \"CLP-002\", \"title\": \"Weak access control\", \"severity\": \"High\", \"status\": \"Fixed\"},\n]\nwith open(\"findings.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as file:\n    writer = csv.DictWriter(file, fieldnames=[\"id\", \"title\", \"severity\", \"status\"])\n    writer.writeheader()\n    writer.writerows(findings)\nprint(\"CSV report created\")"
+  },
+  {
+    "id": 293,
+    "title": "Calculate a simple risk priority score",
+    "category": "Reporting",
+    "level": "Beginner",
+    "description": "Use an illustrative likelihood × impact score; this is not a formal CVSS calculation.",
+    "code": "def risk_score(likelihood, impact):\n    if not (1 <= likelihood <= 5 and 1 <= impact <= 5):\n        raise ValueError(\"Scores must be from 1 to 5\")\n    return likelihood * impact\n\nscore = risk_score(4, 5)\nprint(\"Risk score:\", score)\nprint(\"Priority:\", \"High\" if score >= 15 else \"Review\")"
+  },
+  {
+    "id": 294,
+    "title": "Check required security headers on localhost",
+    "category": "Security Automation",
+    "level": "Intermediate",
+    "description": "Inspect headers from a local app you own; no external targets are queried.",
+    "code": "import urllib.request\nurl = \"http://127.0.0.1:8000/\"\nrequired = [\"Content-Security-Policy\", \"X-Content-Type-Options\", \"Referrer-Policy\"]\ntry:\n    with urllib.request.urlopen(url, timeout=3) as response:\n        headers = response.headers\n        for name in required:\n            print((\"OK\" if name in headers else \"MISSING\"), name)\nexcept Exception as error:\n    print(\"Local app check failed:\", error)"
+  },
+  {
+    "id": 295,
+    "title": "Inventory local project files",
+    "category": "Asset Inventory",
+    "level": "Beginner",
+    "description": "Create a simple inventory of files in your own project directory.",
+    "code": "from pathlib import Path\nroot = Path.home() / \"cyber-lab\"\nfor path in sorted(root.rglob(\"*\")):\n    if path.is_file():\n        try:\n            print(path.relative_to(root), path.stat().st_size, \"bytes\")\n        except OSError:\n            pass"
+  },
+  {
+    "id": 296,
+    "title": "Validate a lab scope list",
+    "category": "Asset Inventory",
+    "level": "Beginner",
+    "description": "Accept only localhost and loopback IPs in this practice scope file.",
+    "code": "import ipaddress\nscope = [\"localhost\", \"127.0.0.1\", \"::1\"]\nfor target in scope:\n    if target == \"localhost\":\n        print(\"APPROVED:\", target)\n        continue\n    try:\n        ip = ipaddress.ip_address(target)\n        print((\"APPROVED:\" if ip.is_loopback else \"REJECTED:\"), target)\n    except ValueError:\n        print(\"REJECTED:\", target)"
+  },
+  {
+    "id": 297,
+    "title": "Check a local TCP port safely",
+    "category": "Security Automation",
+    "level": "Beginner",
+    "description": "Test one explicitly chosen loopback port on your own device.",
+    "code": "import socket\nhost, port = \"127.0.0.1\", 8000\nwith socket.socket() as sock:\n    sock.settimeout(2)\n    result = sock.connect_ex((host, port))\nprint(\"OPEN\" if result == 0 else \"CLOSED or unavailable\")"
+  },
+  {
+    "id": 298,
+    "title": "Detect accidentally committed secret patterns in a project",
+    "category": "Secrets Management",
+    "level": "Intermediate",
+    "description": "Search your own source files for common secret-like assignments; review matches manually.",
+    "code": "from pathlib import Path\nimport re\nroot = Path(\".\")\npattern = re.compile(r\"(?i)(api[_-]?key|secret|password)\\s*[:=]\\s*['\\\"][^'\\\"]{8,}\")\nfor path in root.rglob(\"*\"):\n    if path.is_file() and path.suffix in {\".py\", \".js\", \".html\", \".json\", \".env.example\"}:\n        try:\n            for line_no, line in enumerate(path.read_text(errors=\"ignore\").splitlines(), 1):\n                if pattern.search(line):\n                    print(f\"REVIEW {path}:{line_no} — possible hard-coded secret\")\n        except OSError:\n            pass"
+  },
+  {
+    "id": 299,
+    "title": "Create a repeatable weekly security checklist",
+    "category": "Security Operations",
+    "level": "Beginner",
+    "description": "Use a repeatable routine to keep your personal lab and projects in good shape.",
+    "code": "weekly_checks = [\n    \"Install trusted OS and application updates\",\n    \"Review newly installed packages\",\n    \"Check local listening services\",\n    \"Review authentication and application logs\",\n    \"Verify backups can be read\",\n    \"Run dependency vulnerability checks\",\n    \"Review repository for accidental secrets\",\n    \"Retest previously fixed findings\",\n]\nfor item in weekly_checks:\n    print(\"[ ]\", item)"
+  }
+]
