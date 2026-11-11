@@ -200,25 +200,33 @@ function persist(){
 
 async function loadPack() {
   try {
-    const response = await fetch("./cyber_codes_pack_01.json");
-    const pack = await response.json();
+    const files = [
+      "./cyber_codes_pack_01.json",
+      "./cyber_codes_pack_02.json"
+    ];
+
+    const results = await Promise.all(
+      files.map(async file => {
+        const response = await fetch(file);
+        if (!response.ok) throw new Error(file);
+        return response.json();
+      })
+    );
 
     const localCodes = JSON.parse(
       localStorage.getItem("cyber_codes") || "[]"
     );
 
-    codes = [...pack];
-
-    for (const item of localCodes) {
-      if (!codes.some(c => c.id === item.id)) {
-        codes.push(item);
-      }
-    }
+    codes = [...new Map(
+      [...results.flat(), ...localCodes]
+        .map(item => [item.id, item])
+    ).values()];
 
     persist();
     render();
+
   } catch (error) {
-    console.error("Code library loading error:", error);
+    console.error("Library loading error:", error);
     render();
   }
 }
