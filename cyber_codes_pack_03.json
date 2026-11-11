@@ -1,0 +1,250 @@
+[
+  {
+    "id": 62,
+    "title": "Parameterized SQLite Query",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Safely query a database using placeholders.",
+    "code": "import sqlite3\nconn=sqlite3.connect(':memory:')\nconn.execute('CREATE TABLE users(name TEXT)')\nconn.execute('INSERT INTO users VALUES (?)', ('alice',))\nname=input('Name: ')\nprint(conn.execute('SELECT name FROM users WHERE name=?',(name,)).fetchall())"
+  },
+  {
+    "id": 63,
+    "title": "Escape Untrusted HTML",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Encode untrusted text before placing it in HTML.",
+    "code": "import html\nprint(html.escape('<script>alert(1)</script>'))"
+  },
+  {
+    "id": 64,
+    "title": "Validate Username",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Allow a conservative username format.",
+    "code": "import re\nname=input('Username: ')\nprint(bool(re.fullmatch(r'[A-Za-z0-9_]{3,24}', name)))"
+  },
+  {
+    "id": 65,
+    "title": "Validate JSON Input",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Check API payload types and bounds.",
+    "code": "def valid(data):\n    return (isinstance(data,dict) and isinstance(data.get('name'),str)\n      and 1<=len(data['name'])<=80 and isinstance(data.get('quantity'),int)\n      and not isinstance(data.get('quantity'),bool) and 1<=data['quantity']<=100)\nprint(valid({'name':'Pen','quantity':2}))"
+  },
+  {
+    "id": 66,
+    "title": "Safe Upload Filename",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Generate a server-side filename after extension allowlisting.",
+    "code": "from pathlib import Path\nimport secrets\nname='photo.png'\next=Path(name).suffix.lower()\nif ext not in {'.png','.jpg','.jpeg','.pdf'}: raise ValueError('Rejected')\nprint(secrets.token_hex(16)+ext)"
+  },
+  {
+    "id": 67,
+    "title": "Limit Upload Size",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Reject files above a defined maximum size.",
+    "code": "MAX_BYTES=2*1024*1024\ndef allowed(size): return isinstance(size,int) and 0<=size<=MAX_BYTES\nprint(allowed(1024))"
+  },
+  {
+    "id": 68,
+    "title": "Flask Security Headers",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Add baseline security headers to your own Flask application.",
+    "code": "from flask import Flask\napp=Flask(__name__)\n@app.after_request\ndef headers(r):\n r.headers['X-Content-Type-Options']='nosniff'\n r.headers['X-Frame-Options']='DENY'\n r.headers['Referrer-Policy']='strict-origin-when-cross-origin'\n r.headers['Content-Security-Policy']=\"default-src 'self'; object-src 'none'; frame-ancestors 'none'\"\n return r"
+  },
+  {
+    "id": 69,
+    "title": "Secure Flask Session Cookies",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Configure secure session cookie attributes for HTTPS deployment.",
+    "code": "from flask import Flask\napp=Flask(__name__)\napp.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')\n# Load a long random SECRET_KEY from environment variables."
+  },
+  {
+    "id": 70,
+    "title": "Generate CSRF Token",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Generate an unpredictable token for a local form workflow.",
+    "code": "import secrets\ncsrf_token=secrets.token_urlsafe(32)\nprint(csrf_token)\n# Store in session and validate on form submission."
+  },
+  {
+    "id": 71,
+    "title": "Constant-Time CSRF Comparison",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Compare submitted and session tokens safely.",
+    "code": "import hmac\ndef valid_csrf(expected, submitted):\n return bool(expected and submitted and hmac.compare_digest(expected,submitted))"
+  },
+  {
+    "id": 72,
+    "title": "Example Content Security Policy",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "A restrictive policy example; test before enforcing on your own site.",
+    "code": "# HTTP response header:\nContent-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+  },
+  {
+    "id": 73,
+    "title": "Prevent Open Redirects",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Allow only local absolute paths for redirects.",
+    "code": "from urllib.parse import urlparse\ndef safe_path(value):\n p=urlparse(value)\n if p.scheme or p.netloc or not value.startswith('/') or value.startswith('//'): return '/'\n return value\nprint(safe_path('/dashboard'))"
+  },
+  {
+    "id": 74,
+    "title": "Redact Secrets from Logs",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Avoid writing passwords and tokens to application logs.",
+    "code": "SENSITIVE={'password','token','authorization','secret'}\ndef redact(data):\n return {k:('[REDACTED]' if k.lower() in SENSITIVE else v) for k,v in data.items()}\nprint(redact({'user':'alice','password':'demo'}))"
+  },
+  {
+    "id": 75,
+    "title": "Local Login Failure Counter",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Demonstrate a local in-memory failed-login counter; production needs shared storage and careful lockout design.",
+    "code": "from collections import defaultdict\nfailures=defaultdict(int)\ndef failed(key):\n failures[key]+=1\n return failures[key]>=5\nprint(failed('training-user'))"
+  },
+  {
+    "id": 76,
+    "title": "Hash Password with scrypt",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Demonstrate salted password hashing with Python scrypt.",
+    "code": "import os,hashlib,base64\npassword=b'Example-Only-Password!'\nsalt=os.urandom(16)\ndigest=hashlib.scrypt(password,salt=salt,n=2**14,r=8,p=1)\nprint(base64.b64encode(salt).decode())\nprint(base64.b64encode(digest).decode())"
+  },
+  {
+    "id": 77,
+    "title": "Verify scrypt Password",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Verify a candidate password against a stored salt and digest.",
+    "code": "import hashlib,hmac\ndef verify(candidate,salt,expected):\n actual=hashlib.scrypt(candidate.encode(),salt=salt,n=2**14,r=8,p=1)\n return hmac.compare_digest(actual,expected)"
+  },
+  {
+    "id": 78,
+    "title": "Generate Demo One-Time Code",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Generate a random six-digit code for a local demo only.",
+    "code": "import secrets\nprint(f'{secrets.randbelow(1_000_000):06d}')\n# Add expiry, single-use tracking and rate limits in an app."
+  },
+  {
+    "id": 79,
+    "title": "Session Rotation Notes",
+    "category": "Authentication",
+    "level": "Intermediate",
+    "description": "Remember to rotate sessions after login and privilege changes.",
+    "code": "# On successful login:\n# 1. Invalidate pre-authentication session ID.\n# 2. Issue a fresh authenticated session.\n# 3. Rotate again after privilege changes.\n# Use your framework's supported session API."
+  },
+  {
+    "id": 80,
+    "title": "Password Policy Check",
+    "category": "Authentication",
+    "level": "Beginner",
+    "description": "Apply a minimum length and common-password blocklist.",
+    "code": "blocked={'password','password123','qwerty123'}\ndef acceptable(p): return len(p)>=14 and p.lower() not in blocked\nprint(acceptable('A-long-example-passphrase!'))"
+  },
+  {
+    "id": 81,
+    "title": "Create Constrained SQLite Table",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Use database constraints for basic data integrity.",
+    "code": "import sqlite3\nc=sqlite3.connect('training.db')\nc.execute('CREATE TABLE IF NOT EXISTS accounts(id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)')\nc.commit(); c.close()"
+  },
+  {
+    "id": 82,
+    "title": "Load Secret from Environment",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Avoid hardcoding application secrets in source control.",
+    "code": "import os\nsecret=os.environ.get('APP_SECRET')\nif not secret: raise RuntimeError('APP_SECRET is not configured')\nprint('Secret configured')"
+  },
+  {
+    "id": 83,
+    "title": "Audit Python Dependencies",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Audit dependencies in your own Python project.",
+    "code": "# Install in your project environment:\npython -m pip install pip-audit\n# Run the audit:\npython -m pip_audit"
+  },
+  {
+    "id": 84,
+    "title": "Audit Node Dependencies",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Review dependency advisories in your own Node project.",
+    "code": "# Run inside your own project directory:\nnpm audit"
+  },
+  {
+    "id": 85,
+    "title": "Inspect Security Contact Files",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Check standard metadata files on your own local website.",
+    "code": "from urllib.request import urlopen\nbase='http://127.0.0.1:8000'\nfor path in ['/robots.txt','/.well-known/security.txt']:\n try:\n  with urlopen(base+path,timeout=3) as r: print(path,r.status,r.read(500).decode(errors='replace'))\n except Exception as e: print(path,'not available',e)"
+  },
+  {
+    "id": 86,
+    "title": "Local API Health Check",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Check a health endpoint on your own development server.",
+    "code": "from urllib.request import urlopen\nwith urlopen('http://127.0.0.1:8000/health',timeout=3) as r:\n print('HTTP:',r.status)\n print(r.read(500).decode(errors='replace'))"
+  },
+  {
+    "id": 87,
+    "title": "Validate Numeric Object ID",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Validate an identifier's type and range before database access.",
+    "code": "def valid_id(x):\n return isinstance(x,int) and not isinstance(x,bool) and 1<=x<=10_000_000\nprint(valid_id(42))"
+  },
+  {
+    "id": 88,
+    "title": "Object Ownership Authorization",
+    "category": "Web Security",
+    "level": "Intermediate",
+    "description": "Demonstrate server-side object-level authorization.",
+    "code": "def can_view(user_id,owner_id,is_admin=False):\n return is_admin or user_id==owner_id\nprint(can_view(7,7),can_view(7,9))"
+  },
+  {
+    "id": 89,
+    "title": "Generic Public Error Message",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Avoid exposing stack traces and internal details to users.",
+    "code": "def public_error(error):\n # Log diagnostic details securely on the server.\n print('Internal diagnostic:',repr(error))\n return {'error':'Request could not be completed'}\nprint(public_error(ValueError('demo')))"
+  },
+  {
+    "id": 90,
+    "title": "Form Security Checklist",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Review defensive controls on forms in your own practice site.",
+    "code": "checks=['Server validates every field','Parameterized database queries','Contextual output encoding','CSRF protection on state changes','No stack traces in responses','Rate limits on sensitive actions','Server-side authorization']\nfor x in checks: print('[ ]',x)"
+  },
+  {
+    "id": 91,
+    "title": "Inspect Response Security Headers",
+    "category": "Web Security",
+    "level": "Beginner",
+    "description": "Inspect headers on your own local practice application.",
+    "code": "import urllib.request\nreq=urllib.request.Request('http://127.0.0.1:8000',method='GET')\nwith urllib.request.urlopen(req,timeout=3) as r:\n for h in ['Content-Security-Policy','X-Content-Type-Options','X-Frame-Options','Strict-Transport-Security']:\n  print(h,':',r.headers.get(h,'MISSING'))"
+  },
+  {
+    "id": 92,
+    "title": "Check Local HTTPS Certificate with OpenSSL",
+    "category": "Networking",
+    "level": "Intermediate",
+    "description": "Inspect a TLS certificate for a host you own or are authorized to assess.",
+    "code": "# Replace with your own lab hostname:\nopenssl s_client -connect localhost:443 -servername localhost </dev/null"
+  }
+]
