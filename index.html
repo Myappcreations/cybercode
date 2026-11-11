@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Lab Pro</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#080e19;color:#e5edf7;
+ font-family:Arial,sans-serif
+}
+header{
+ background:#101d30;padding:22px;
+ border-bottom:1px solid #263c55
+}
+h1{color:#36d9a0;margin:0}
+header p{color:#9eb1c8}
+main{max-width:1050px;margin:auto;padding:18px}
+input,select,textarea,button{
+ width:100%;padding:12px;margin:7px 0;
+ border-radius:8px;border:1px solid #33465f;
+ background:#132238;color:white;font-size:15px
+}
+button{background:#087d65;border:0;cursor:pointer}
+button.secondary{background:#263b55}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{
+ background:#111e31;border:1px solid #293c54;
+ padding:16px;border-radius:12px;margin:14px 0
+}
+.card h3{color:#44dbad}
+.tag{color:#9db8d5;font-size:12px}
+pre{
+ white-space:pre-wrap;overflow-wrap:anywhere;
+ background:#080d17;padding:13px;border-radius:8px;
+ color:#9cf4c9
+}
+.actions{display:flex;gap:8px}
+.actions button{flex:1}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>⚡ CYBER LAB PRO</h1>
+<p>Your personal Ethical Hacking Code Library</p>
+</header>
+
+<main>
+<h2>Code Explorer</h2>
+
+<input id="search" placeholder="Search Python, Nmap, XSS..."
+ oninput="render()">
+
+<div class="toolbar">
+<select id="category" onchange="render()">
+<option value="All">All Categories</option>
+<option>Python</option>
+<option>Linux</option>
+<option>Networking</option>
+<option>Web Security</option>
+<option>Authentication</option>
+</select>
+
+<select id="level" onchange="render()">
+<option value="All">All Levels</option>
+<option>Beginner</option>
+<option>Intermediate</option>
+<option>Advanced</option>
+</select>
+</div>
+
+<div class="toolbar">
+<button onclick="showSaved=false;render()">All Codes</button>
+<button class="secondary"
+ onclick="showSaved=true;render()">★ Saved Codes</button>
+</div>
+
+<p id="count"></p>
+<div id="library"></div>
+
+<hr>
+<h2>Add Your Own Code</h2>
+<input id="newTitle" placeholder="Code title">
+<select id="newCategory">
+<option>Python</option>
+<option>Linux</option>
+<option>Networking</option>
+<option>Web Security</option>
+<option>Authentication</option>
+</select>
+<select id="newLevel">
+<option>Beginner</option>
+<option>Intermediate</option>
+<option>Advanced</option>
+</select>
+<textarea id="newDescription"
+ placeholder="What does this code do?"></textarea>
+<textarea id="newCode" rows="6"
+ placeholder="Paste your code here"></textarea>
+<button onclick="addCode()">+ Save New Code</button>
+</main>
+
+<script>
+const starter = [
+{
+ id:1,title:"SHA-256 File Hash",
+ category:"Python",level:"Beginner",
+ description:"Calculate a SHA-256 hash of a local file.",
+ code:`import hashlib
+
+file_path = "sample.txt"
+sha = hashlib.sha256()
+
+with open(file_path, "rb") as f:
+    for chunk in iter(lambda: f.read(4096), b""):
+        sha.update(chunk)
+
+print("SHA-256:", sha.hexdigest())`
+},
+{
+ id:2,title:"Check Localhost Connection",
+ category:"Networking",level:"Beginner",
+ description:"Test whether a service is listening on localhost.",
+ code:`import socket
+
+host = "127.0.0.1"
+port = 8000
+
+s = socket.socket()
+s.settimeout(2)
+
+result = s.connect_ex((host, port))
+print("Open" if result == 0 else "Closed")
+
+s.close()`
+},
+{
+ id:3,title:"Linux System Information",
+ category:"Linux",level:"Beginner",
+ description:"Display basic Linux system information.",
+ code:`uname -a
+whoami
+pwd
+ip addr
+df -h
+free -h`
+},
+{
+ id:4,title:"Password Strength Checker",
+ category:"Authentication",level:"Beginner",
+ description:"Basic offline password strength checks. This does not attempt any login.",
+ code:`import re
+
+password = input("Enter test password: ")
+
+checks = {
+    "Length 12+": len(password) >= 12,
+    "Uppercase": bool(re.search(r"[A-Z]", password)),
+    "Lowercase": bool(re.search(r"[a-z]", password)),
+    "Number": bool(re.search(r"[0-9]", password)),
+    "Symbol": bool(re.search(r"[^A-Za-z0-9]", password))
+}
+
+for name, passed in checks.items():
+    print(name, "PASS" if passed else "FAIL")`
+},
+{
+ id:5,title:"HTML Security Headers Check",
+ category:"Web Security",level:"Intermediate",
+ description:"Inspect HTTP response headers on a website you own or are authorized to test.",
+ code:`import requests
+
+url = "http://127.0.0.1:8000"
+
+response = requests.get(url, timeout=5)
+
+headers = [
+    "Content-Security-Policy",
+    "X-Content-Type-Options",
+    "X-Frame-Options",
+    "Strict-Transport-Security"
+]
+
+for header in headers:
+    print(header, response.headers.get(header, "Not present"))`
+}
+];
+
+let codes = JSON.parse(localStorage.getItem("cyber_codes") || "null") || starter;
+let saved = JSON.parse(localStorage.getItem("cyber_saved") || "[]");
+let showSaved = false;
+
+function persist(){
+ localStorage.setItem("cyber_codes",JSON.stringify(codes));
+ localStorage.setItem("cyber_saved",JSON.stringify(saved));
+}
+
+function render(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const cat=document.getElementById("category").value;
+ const lvl=document.getElementById("level").value;
+
+ const filtered=codes.filter(c=>{
+  const match=(c.title+" "+c.description+" "+c.code)
+    .toLowerCase().includes(q);
+  return match &&
+   (cat==="All"||c.category===cat) &&
+   (lvl==="All"||c.level===lvl) &&
+   (!showSaved||saved.includes(c.id));
+ });
+
+ document.getElementById("count").textContent=
+   filtered.length+" codes found";
+
+ document.getElementById("library").innerHTML=
+ filtered.map(c=>`
+ <div class="card">
+ <h3>${escapeHTML(c.title)}</h3>
+ <div class="tag">${escapeHTML(c.category)} • ${escapeHTML(c.level)}</div>
+ <p>${escapeHTML(c.description)}</p>
+ <pre>${escapeHTML(c.code)}</pre>
+ <div class="actions">
+ <button onclick="copyCode(${c.id})">Copy</button>
+ <button class="secondary"
+ onclick="toggleSave(${c.id})">
+ ${saved.includes(c.id)?"★ Saved":"☆ Save"}
+ </button>
+ </div>
+ </div>`).join("") || "<p>No matching codes found.</p>";
+}
+
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",
+ '"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function toggleSave(id){
+ saved=saved.includes(id)
+  ? saved.filter(x=>x!==id) : [...saved,id];
+ persist();render();
+}
+
+function copyCode(id){
+ const c=codes.find(x=>x.id===id);
+ if(c) navigator.clipboard.writeText(c.code)
+  .then(()=>alert("Code copied!"))
+  .catch(()=>alert("Copy unavailable. Select the code manually."));
+}
+
+function addCode(){
+ const title=document.getElementById("newTitle").value.trim();
+ const code=document.getElementById("newCode").value;
+ if(!title||!code.trim()){
+  alert("Enter a title and code.");return;
+ }
+ codes.unshift({
+  id:Date.now(),
+  title,
+  category:document.getElementById("newCategory").value,
+  level:document.getElementById("newLevel").value,
+  description:document.getElementById("newDescription").value,
+  code
+ });
+ persist();
+ ["newTitle","newDescription","newCode"].forEach(id=>
+  document.getElementById(id).value=""
+ );
+ showSaved=false;render();
+ alert("Code saved!");
+}
+
+render();
+</script>
+</body>
+</html>
